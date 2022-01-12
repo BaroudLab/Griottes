@@ -46,7 +46,7 @@ G = graph_generation_func.generate_contact_graph(test_image)
 
 ## From a dataframe
 
-It is also possible to rapidly generate Delaunay or geometric graphs from a pandas dataframe containing single-cell information. It is necessary that the columns indicating the cell positions be named `x`, `y` (and `z` if the cells are distributed in 3D).
+It is also possible to rapidly generate Delaunay or geometric graphs from a pandas dataframe containing single-cell information. It is necessary that the columns indicating the cell positions be named `x`, `y` (and `z` if the cells are distributed in 3D). Also, all the elemets in the `descriptors` list must be contained in the dataframe columns.
 
 ```
 from griottes.graphmaker import graph_generation_func
