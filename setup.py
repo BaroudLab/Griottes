@@ -2,29 +2,24 @@
 
 from setuptools import setup
 
+with open("requirements.txt", "r") as f:
+    REQUIREMENTS = f.read().splitlines()
+
 setup(
     name="griottes",
     version="0.0.1",
-    description="Extracting single-cell data from segmented images",
+    description="Python program to generate NetworkX graphs from segmented images.",
     author="Gustave Ronteix",
     author_email="gustave.ronteix@pasteur.fr",
-    url="https://github.com/microfluidix/graphs-on-chip",
-    install_requires=[
-        "numpy",
-        "tifffile",
-        "scipy",
-        "networkx",
-        "pytest",
-        "tqdm",
-        "pandas",
-        "click",
-        "pip",
-        "mkl",
-        "scikit-image",
-        "matplotlib",
-        "sklearn",
-        "tox",
+    url="https://github.com/BaroudLab/Griottes",
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
     ],
+    package_dir={"": "src"},
+    python_requires=">=3.6",
+    install_requires=REQUIREMENTS,
     packages=[
         "griottes",
         "griottes.analyse",
