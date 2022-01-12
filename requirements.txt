@@ -1,0 +1,12 @@
+numpy
+scipy
+networkx
+pytest
+tqdm
+pandas
+sklearn
+tqdm
+matplotlib
+tifffile
+pip
+scikit-image
