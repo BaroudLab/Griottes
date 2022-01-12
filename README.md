@@ -19,7 +19,7 @@ This is **🍒  Griottes🍒** a tool to maximize the amount of information you 
 For the moment, only installation via the repository is possible, so you'll have to download it from the command line. In the command prompt enter:
 
 ```
-git clone https://gitlab.pasteur.fr/gronteix1/spheroid-graphs.git
+git clone https://github.com/BaroudLab/Griottes.git
 ```
 
 This should download the project. Then install the required packages. In the terminal, navigate to the package directory and type:
