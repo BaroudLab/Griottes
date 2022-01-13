@@ -147,3 +147,9 @@ cython_debug/
 # Images
 .pdf
 *.pdf
+
+.json
+*.json
+
+.vscode
+*.vscode

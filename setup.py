@@ -17,8 +17,6 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    package_dir={"": ""},
-    python_requires=">=3.6",
     install_requires=REQUIREMENTS,
     packages=[
         "griottes",
