@@ -1,9 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env pytho[n
 
 from setuptools import setup
 
-with open("requirements.txt", "r") as f:
-    REQUIREMENTS = f.read().splitlines()
+# with open("requirements.txt", "r") as f:
+#     REQUIREMENTS = f.read().splitlines()
 
 setup(
     name="griottes",
@@ -17,7 +17,15 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    install_requires=REQUIREMENTS,
+    install_requires=[
+        'numpy',
+        'scipy',
+        'networkx',
+        'tqdm',
+        'pandas',
+        'scikit-image',
+        'sklearn',
+    ],
     packages=[
         "griottes",
         "griottes.analyse",
