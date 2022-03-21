@@ -366,6 +366,36 @@ def get_cell_properties(
     ndim=3,
 ):
 
+    """
+    Calculate the cell properties for a given image.
+
+    Parameters
+    ----------
+    image : numpy array
+        The image to be analyzed.
+    mask_channel : int
+        The channel to be used as a mask.
+    analyze_fluo_channels : bool
+        If True, the fluorescence channels will be analyzed.
+    fluo_channel_analysis_method : str
+        The method to be used to analyze the fluorescence channels. Either `basic`, 
+        `local_voronoi`, or `local_sphere`.
+    cell_geometry_properties : bool
+        If True, the cell geometry properties will be calculated.
+    labeled_voronoi_tesselation : bool
+        If True, the voronoi tesselation will be generated and returned as an array.
+    radius : int
+        Maximum radius within which the cell properties are measured.
+    min_area : int
+        Minimum area of a cell to be considered.
+    percentile : int
+        Percentile of the intensity distribution to be used for the percentile intensity calculation.
+
+    Returns
+    -------
+    pandas.DataFrame
+    """
+
     if image.ndim - ndim < 0:
         print(
             f"the input image has less dimensions than it should. Please check that the input is correct."
