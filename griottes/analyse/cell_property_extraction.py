@@ -368,17 +368,17 @@ def get_cell_properties(
 
     if image.ndim - ndim < 0:
         print(
-            "the input image has less dimensions than it should. Please check that 'ndim' is correct."
+            f"the input image has less dimensions than it should. Please check that the input is correct."
         )
         return False
     elif image.ndim - ndim > 1:
         print(
-            "the input image has more dimensions than it should. Please check that 'ndim' is correct."
+            f"the input image has {image.ndim} dimensions instead of {ndim+1}. Please check that the input is correct."
         )
         return False
     elif image.ndim - ndim == 0:
         print(
-            "The input image has the same number of dimensions as 'ndim', it will be analyzed as a labeled image."
+            f"The input image has {image.ndim} dimensions, it will be analyzed as a labeled image."
         )
         analyze_fluo_channels = False
         mask_channel = None
@@ -387,8 +387,6 @@ def get_cell_properties(
         image = image[np.newaxis, ...]
 
     properties = get_nuclei_properties(image=image, mask_channel=mask_channel)
-
-    print("nuclei properties extracted")
 
     properties = properties.rename(
         columns={"centroid-0": "z", "centroid-1": "x", "centroid-2": "y"}

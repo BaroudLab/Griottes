@@ -42,7 +42,8 @@ def network_plot_2D(
 
     fig, ax = plt.subplots(figsize=figsize)
 
-    plt.imshow(background_image, cmap="gray")
+    if background_image is not None:
+        plt.imshow(background_image, cmap="gray")
 
     # Loop on the pos dictionary to extract the x,y,z coordinates of each node
 
