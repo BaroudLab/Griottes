@@ -79,7 +79,7 @@ def test_generate_delaunay_graph(test_image_2D):
     assert len(G_voronoi.edges()) == 3
 
 
-def test_generate_contact_graph(test_image_2D):
+def test_generate_contact_graph_2D(test_image_2D):
 
     G_contact = graph_generation_func.generate_contact_graph(
         test_image_2D,
@@ -92,6 +92,20 @@ def test_generate_contact_graph(test_image_2D):
     assert isinstance(G_contact, nx.Graph)
     assert len(G_contact.nodes()) == 3
     assert len(G_contact.edges()) == 3
+
+def test_generate_contact_graph_3D(test_image_3D):
+
+    G_contact = graph_generation_func.generate_contact_graph(
+        test_image_3D,
+        descriptors=[],
+        min_area=1,
+        analyze_fluo_channels=False,
+        radius=1,
+        mask_channel=None,
+    )
+    assert isinstance(G_contact, nx.Graph)
+    assert len(G_contact.nodes()) == 2
+    assert len(G_contact.edges()) == 1
 
 
 def test_generate_geometric_graph(test_image_2D):
