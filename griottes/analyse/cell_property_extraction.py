@@ -331,17 +331,20 @@ def voronoi_fluo_property_analysis(
                 percentile=percentile,
             )
 
+            del properties['area_volume']
+
             properties_fluo = properties_fluo.rename(
-                columns={"mean_intensity": "mean_intensity_" + str(i)}
+                columns={"mean_intensity": "mean_intensity_channel_" + str(i)}
             )
 
             properties_fluo = properties_fluo.rename(
-                columns={"percentile_intensity": "percentile_intensity_" + str(i)}
+                columns={"percentile_intensity": "percentile_intensity_channel_" + str(i)}
             )
 
             properties = properties.merge(properties_fluo, how="outer", on="label")
 
     del properties["mean_intensity"]
+    del properties["percentile_intensity"]
 
     if labeled_voronoi_tesselation:
 
@@ -416,13 +419,12 @@ def get_cell_properties(
     if ndim == 2:
         image = image[np.newaxis, ...]
 
-    properties = get_nuclei_properties(image=image, mask_channel=mask_channel)
+    properties = get_nuclei_properties(image=image, 
+                                       mask_channel=mask_channel)
 
     properties = properties.rename(
         columns={"centroid-0": "z", "centroid-1": "x", "centroid-2": "y"}
     )
-
-    properties = properties[properties.area > min_area]
 
     if cell_geometry_properties:
 
@@ -500,6 +502,7 @@ def get_cell_properties(
 
                 properties = properties.dropna()
                 properties.index = np.arange(len(properties))
+                properties = properties[properties.area > min_area]
 
                 return properties
 
@@ -507,5 +510,6 @@ def get_cell_properties(
 
         properties = properties.dropna()
         properties.index = np.arange(len(properties))
+        properties = properties[properties.area > min_area]
 
         return properties
