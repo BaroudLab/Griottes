@@ -331,8 +331,6 @@ def voronoi_fluo_property_analysis(
                 percentile=percentile,
             )
 
-            del properties['area_volume']
-
             properties_fluo = properties_fluo.rename(
                 columns={"mean_intensity": "mean_intensity_channel_" + str(i)}
             )
