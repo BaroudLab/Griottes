@@ -402,7 +402,7 @@ def attribute_layer(G, flat_image=False):
 ###########
 
 
-def get_region_contacts(mask_image):
+def get_region_contacts_2D(mask_image):
 
     """
     From the masked image create a dataframe containing the information
@@ -410,7 +410,8 @@ def get_region_contacts(mask_image):
 
     """
 
-    assert np.ndim(mask_image) == 2
+    assert isinstance(mask_image, np.ndarray)
+    assert mask_image.ndim == 2
 
     # final output
     edge_frame = pandas.DataFrame(columns=["label", "neighbors"])
@@ -453,6 +454,66 @@ def get_region_contacts(mask_image):
     return edge_frame
 
 
+def get_region_contacts_3D(mask_image):
+
+    """
+    From a labeled 3D image create a dataframe containing the information
+    on all the links between regions.
+
+    """
+
+    assert isinstance(mask_image, np.ndarray)
+    assert mask_image.ndim == 3
+
+    # final output
+    edge_frame = pandas.DataFrame(columns=["label", "neighbors"])
+    region_list = np.unique(mask_image)
+    region_list = region_list[region_list > 0]  # exclude background
+
+    for region in np.unique(mask_image):
+
+        y = mask_image == region  # convert to Boolean
+
+        rolled = np.roll(y, 1, axis=0)  # shift down
+        rolled[0, :, :] = False
+        z = np.logical_or(y, rolled)
+
+        rolled = np.roll(y, -1, axis=0)  # shift up
+        rolled[-1, :, :] = False
+        z = np.logical_or(z, rolled)
+
+        rolled = np.roll(y, 1, axis=1)  # shift right
+        rolled[:, 0, :] = False
+        z = np.logical_or(z, rolled)
+
+        rolled = np.roll(y, -1, axis=1)  # shift left
+        rolled[:, -1, :] = False
+        z = np.logical_or(z, rolled)
+
+        rolled = np.roll(y, 1, axis=2)  # shift right
+        rolled[:, :, 0] = False
+        z = np.logical_or(z, rolled)
+
+        rolled = np.roll(y, -1, axis=2)  # shift left
+        rolled[:, :, -1] = False
+        z = np.logical_or(z, rolled)
+
+        neigh, length = np.unique(np.extract(z, mask_image), return_counts=True)
+
+        # remove the current region from the neighbor region list
+        ind = np.where(neigh == region)
+        neigh = np.delete(neigh, ind)
+        length = np.delete(length, ind)
+
+        new_row = {
+            "label": region,
+            "neighbors": {neigh[i]: length[i] for i in range(len(neigh))},
+        }
+        edge_frame = edge_frame.append(new_row, ignore_index=True)
+
+    return edge_frame
+
+
 def create_region_contact_frame(
     label_img,
     mask_channel,
@@ -464,10 +525,17 @@ def create_region_contact_frame(
 ):
 
     # Need to work on label mask to get neighbors
+    # and link weight.
     if mask_channel is not None:
-        edge_frame = get_region_contacts(label_img[..., mask_channel])
+        if label_img[..., mask_channel].ndim == 2:
+            edge_frame = get_region_contacts_2D(label_img[..., mask_channel])
+        elif label_img[..., mask_channel].ndim == 3:
+            edge_frame = get_region_contacts_3D(label_img[..., mask_channel])
     else:
-        edge_frame = get_region_contacts(label_img)
+        if label_img.ndim == 2:
+            edge_frame = get_region_contacts_2D(label_img)
+        elif label_img.ndim == 3:
+            edge_frame = get_region_contacts_3D(label_img)
 
     # get the region properties
     user_entry = prepare_user_entry(
