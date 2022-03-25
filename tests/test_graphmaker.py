@@ -68,7 +68,7 @@ def test_generate_delaunay_graph(test_image_2D):
         test_image_2D,
         descriptors=[],
         dCells=60,
-        flat_image=True,
+        image_is_2D=True,
         min_area=1,
         analyze_fluo_channels=False,
         radius=1,
