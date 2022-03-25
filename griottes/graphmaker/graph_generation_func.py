@@ -17,7 +17,7 @@ def generate_geometric_graph(
     user_entry,
     descriptors: list = [],
     dCells: float = 60,
-    flat_image=False,
+    image_is_2D=False,
     min_area=0,
     analyze_fluo_channels=False,
     radius=30,
@@ -39,7 +39,7 @@ def generate_geometric_graph(
         network nodes.
     dCells : float, optional
         the maximum distance between two nodes.
-    flat_image : bool, optional
+    image_is_2D : bool, optional
         if True, the image is analyzed as a 2D image.
         The default is False.
     min_area : int, optional
@@ -63,7 +63,7 @@ def generate_geometric_graph(
 
     prop = prepare_user_entry(
         user_entry,
-        flat_image,
+        image_is_2D,
         fluo_channel_analysis_method="basic",
         min_area=min_area,
         radius=radius,
@@ -131,7 +131,7 @@ def find_neighbors(tess):
 
 def prepare_user_entry(
     user_entry,
-    flat_image,
+    image_is_2D,
     min_area,
     analyze_fluo_channels,
     fluo_channel_analysis_method,
@@ -149,7 +149,7 @@ def prepare_user_entry(
         if image_dim == 2:
             n_dim = image_dim
         elif image_dim == 3:
-            if flat_image:
+            if image_is_2D:
                 n_dim = image_dim - 1
             else:
                 print(
@@ -191,7 +191,7 @@ def generate_delaunay_graph(
     user_entry,
     descriptors: list = [],
     dCells: float = 60,
-    flat_image=False,
+    image_is_2D=False,
     min_area=0,
     analyze_fluo_channels=False,
     radius=30,
@@ -213,7 +213,7 @@ def generate_delaunay_graph(
         network nodes.
     dCells : float, optional
         the maximum distance between two nodes.
-    flat_image : bool, optional
+    image_is_2D : bool, optional
         if True, the image is analyzed as a 2D image.
         The default is False.
     min_area : int, optional
@@ -237,7 +237,7 @@ def generate_delaunay_graph(
 
     prop = prepare_user_entry(
         user_entry,
-        flat_image,
+        image_is_2D,
         fluo_channel_analysis_method="basic",
         min_area=min_area,
         radius=radius,
@@ -258,9 +258,9 @@ def generate_delaunay_graph(
 
     # For the specific case of a 2D mask.
     if (len(user_entry.shape) == 2) & isinstance(user_entry, np.ndarray):
-        flat_image = True
+        image_is_2D = True
 
-    if flat_image:
+    if image_is_2D:
         cells_pos = prep_points_2D(cells)
         tri = Delaunay(cells_pos)
     else:
@@ -340,12 +340,12 @@ def trim_graph_voronoi(G, dCells):
     return G
 
 
-def attribute_layer(G, flat_image=False):
+def attribute_layer(G, image_is_2D=False):
 
     npoints = G.number_of_nodes()
     pos = nx.get_node_attributes(G, "pos")
 
-    if flat_image:
+    if image_is_2D:
 
         points = np.zeros((npoints, 2))
         layer = 0
@@ -517,7 +517,7 @@ def get_region_contacts_3D(mask_image):
 def create_region_contact_frame(
     label_img,
     mask_channel,
-    flat_image=True,
+    image_is_2D=True,
     min_area=0,
     analyze_fluo_channels=False,
     fluo_channel_analysis_method="basic",
@@ -540,7 +540,7 @@ def create_region_contact_frame(
     # get the region properties
     user_entry = prepare_user_entry(
         label_img,
-        flat_image=flat_image,
+        image_is_2D=image_is_2D,
         min_area=min_area,
         analyze_fluo_channels=analyze_fluo_channels,
         fluo_channel_analysis_method=fluo_channel_analysis_method,
@@ -582,7 +582,7 @@ def generate_contact_graph(
         network nodes.
     dCells : float, optional
         the maximum distance between two nodes.
-    flat_image : bool, optional
+    image_is_2D : bool, optional
         if True, the image is analyzed as a 2D image.
         The default is False.
     min_area : int, optional
@@ -609,7 +609,7 @@ def generate_contact_graph(
 
         user_entry = create_region_contact_frame(
             user_entry,
-            flat_image=True,
+            image_is_2D=True,
             mask_channel=mask_channel,
             min_area=min_area,
             analyze_fluo_channels=analyze_fluo_channels,
