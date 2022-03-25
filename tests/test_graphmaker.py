@@ -39,7 +39,7 @@ def test_prepare_user_entry(test_image_2D, test_image_3D):
 
     user_entry_2D = graph_generation_func.prepare_user_entry(
         user_entry=test_image_2D,
-        flat_image=True,
+        image_is_2D=True,
         min_area=1,
         analyze_fluo_channels=False,
         fluo_channel_analysis_method=None,
@@ -51,7 +51,7 @@ def test_prepare_user_entry(test_image_2D, test_image_3D):
 
     user_entry_3D = graph_generation_func.prepare_user_entry(
         user_entry=test_image_3D,
-        flat_image=True,
+        image_is_2D=True,
         min_area=1,
         analyze_fluo_channels=False,
         fluo_channel_analysis_method=None,
