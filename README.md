@@ -28,7 +28,7 @@ This should download the project. Then install the required packages. In the ter
 pip install .
 ```
 
-The library is now installed on your computer. An example of the library can be accessed [here](Examples/griottes_example.ipynb).
+The library is now installed on your computer. An example of the library can be accessed [here](./example_notebooks/).
 
 # Example
 
