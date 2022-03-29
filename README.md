@@ -37,7 +37,7 @@ The library is now installed on your computer. An example of the library can be 
 
 `Griottes` makes it easy to generate a network from segmented images. The resulting graph object is a networkx graph. Detailed examples can be found at this [link](https://github.com/BaroudLab/Griottes_paper).
 
-```
+```python
 from griottes.graphmaker import graph_generation_func
 test_image # segmented image
 
@@ -48,7 +48,7 @@ G = graph_generation_func.generate_contact_graph(test_image)
 
 It is also possible to rapidly generate Delaunay or geometric graphs from a pandas dataframe containing single-cell information. It is necessary that the columns indicating the cell positions be named `x`, `y` (and `z` if the cells are distributed in 3D). Also, all the elemets in the `descriptors` list must be contained in the dataframe columns.
 
-```
+```python
 from griottes.graphmaker import graph_generation_func
 dataframe # dataframe containing single-cell data
 
