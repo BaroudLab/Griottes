@@ -16,7 +16,7 @@ from griottes.analyse import cell_property_extraction
 def generate_geometric_graph(
     user_entry,
     descriptors: list = [],
-    dCells: float = 60,
+    cell_cell_distance: float = 60,
     image_is_2D=False,
     min_area=0,
     analyze_fluo_channels=False,
@@ -37,7 +37,7 @@ def generate_geometric_graph(
     descriptors : list, optional
         contains the cell information included in the
         network nodes.
-    dCells : float, optional
+    cell_cell_distance : float, optional
         the maximum distance between two nodes.
     image_is_2D : bool, optional
         if True, the image is analyzed as a 2D image.
@@ -81,10 +81,10 @@ def generate_geometric_graph(
     cells = spheroid["cells"]
 
     # Generate a dict of positions
-    pos = {int(i): (cells[i]["z"], cells[i]["x"], cells[i]["y"]) for i in cells.keys()}
+    pos = {int(i): (cells[i]["x"], cells[i]["y"], cells[i]["z"]) for i in cells.keys()}
 
     # Create 3D network
-    G = nx.random_geometric_graph(len(cells), dCells, pos=pos)
+    G = nx.random_geometric_graph(len(cells), cell_cell_distance, pos=pos)
 
     label = {int(i): cells[i]["label"] for i in cells.keys()}
 
@@ -125,7 +125,7 @@ def generate_contact_graph(
     descriptors : list, optional
         contains the cell information included in the
         network nodes.
-    dCells : float, optional
+    cell_cell_distance : float, optional
         the maximum distance between two nodes.
     image_is_2D : bool, optional
         if True, the image is analyzed as a 2D image.
@@ -202,7 +202,7 @@ def generate_contact_graph(
 def generate_delaunay_graph(
     user_entry,
     descriptors: list = [],
-    dCells: float = 60,
+    cell_cell_distance: float = 60,
     image_is_2D=False,
     min_area=0,
     analyze_fluo_channels=False,
@@ -223,7 +223,7 @@ def generate_delaunay_graph(
     descriptors : list, optional
         contains the cell information included in the
         network nodes.
-    dCells : float, optional
+    cell_cell_distance : float, optional
         the maximum distance between two nodes.
     image_is_2D : bool, optional
         if True, the image is analyzed as a 2D image.
@@ -308,7 +308,7 @@ def generate_delaunay_graph(
         desc = {int(i): (cells[i][descriptor]) for i in cells.keys()}
         nx.set_node_attributes(G, desc, descriptor)
 
-    return trim_graph_voronoi(G, dCells)
+    return trim_graph_voronoi(G, cell_cell_distance)
 
 
 def prep_points(cells: dict):
@@ -397,17 +397,17 @@ def prepare_user_entry(
 
         return
 
-def trim_graph_voronoi(G, dCells):
+def trim_graph_voronoi(G, cell_cell_distance):
 
     """
-    Remove slinks above the dCells length. Serves to
+    Remove slinks above the cell_cell_distance length. Serves to
     remove unrealistic edges from the graph.
 
     Parameters
     ----------
     G : nx.Graph
         The graph representation of the input image/table.
-    dCells : float
+    cell_cell_distance : float
         The maximum distance between two nodes.
 
     Output
@@ -426,7 +426,7 @@ def trim_graph_voronoi(G, dCells):
         dy2 = (pos[i][1] - pos[j][1]) ** 2
         dz2 = (pos[i][2] - pos[j][2]) ** 2
 
-        if np.sqrt(dx2 + dy2 + dz2) > dCells:
+        if np.sqrt(dx2 + dy2 + dz2) > cell_cell_distance:
 
             to_remove.append((i, j))
 

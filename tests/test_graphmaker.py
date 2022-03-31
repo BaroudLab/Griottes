@@ -24,6 +24,18 @@ def test_image_3D():
 
     return test_image.astype(int)
 
+@pytest.fixture
+def test_dataframe_3D():
+
+    data = [[0, 0, 0, 0], 
+            [1, 1, 0, 0], 
+            [2, 0, 1, 0], 
+            [3, 1, 0, 2]]
+    test_dataframe = pandas.DataFrame(data = data, 
+                                      columns = ['label', 'x', 'y', 'z'])
+
+    return test_dataframe
+
 
 def test_test_image(test_image_2D):
     assert isinstance(test_image_2D, np.ndarray)
@@ -77,6 +89,23 @@ def test_generate_delaunay_graph(test_image_2D):
     assert isinstance(G_voronoi, nx.Graph)
     assert len(G_voronoi.nodes()) == 3
     assert len(G_voronoi.edges()) == 3
+
+def test_generate_delaunay_graph_from_dataframe(test_dataframe_3D):
+
+    G_voronoi = graph_generation_func.generate_delaunay_graph(
+        test_dataframe_3D,
+        descriptors=[],
+        dCells=5,
+        image_is_2D=False,
+        min_area=0,
+        analyze_fluo_channels=False,
+        radius=1,
+        mask_channel=None,
+    )
+
+    assert isinstance(G_voronoi, nx.Graph)
+    assert len(G_voronoi.nodes()) == 4
+    assert len(G_voronoi.edges()) == 6
 
 
 def test_generate_contact_graph_2D(test_image_2D):
