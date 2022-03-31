@@ -80,14 +80,21 @@ def generate_geometric_graph(
 
     cells = spheroid["cells"]
 
-    # Generate a dict of positions
-    pos = {int(i): (cells[i]["x"], cells[i]["y"], cells[i]["z"]) for i in cells.keys()}
+    if "z" in prop.columns:
+        # Generate a dict of positions
+        pos = {int(i): (cells[i]["x"], cells[i]["y"]) for i in cells.keys()}
 
-    # Create 3D network
-    G = nx.random_geometric_graph(len(cells), cell_cell_distance, pos=pos)
+        # Create 2D network
+        G = nx.random_geometric_graph(len(cells), cell_cell_distance, pos=pos)
+
+    else:
+        # Generate a dict of positions
+        pos = {int(i): (cells[i]["x"], cells[i]["y"], cells[i]["z"]) for i in cells.keys()}
+
+        # Create 3D network
+        G = nx.random_geometric_graph(len(cells), cell_cell_distance, pos=pos)
 
     label = {int(i): cells[i]["label"] for i in cells.keys()}
-
     nx.set_node_attributes(G, pos, "pos")
     nx.set_node_attributes(G, label, "label")
 
@@ -297,7 +304,7 @@ def generate_delaunay_graph(
         else:
             G.add_node(cell)
 
-    pos = {int(i): (cells[i]["z"], cells[i]["x"], cells[i]["y"]) for i in cells.keys()}
+    pos = {int(i): (cells[i]["x"], cells[i]["y"], cells[i]["z"]) for i in cells.keys()}
     label = {int(i): cells[i]["label"] for i in cells.keys()}
 
     nx.set_node_attributes(G, pos, "pos")
@@ -314,7 +321,7 @@ def generate_delaunay_graph(
 def prep_points(cells: dict):
 
     return [
-        [cells[cell_label]["z"], cells[cell_label]["x"], cells[cell_label]["y"]]
+        [cells[cell_label]["x"], cells[cell_label]["y"], cells[cell_label]["z"]]
         for cell_label in cells.keys()
     ]
 

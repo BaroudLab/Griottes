@@ -107,6 +107,23 @@ def test_generate_delaunay_graph_from_dataframe(test_dataframe_3D):
     assert len(G_voronoi.nodes()) == 4
     assert len(G_voronoi.edges()) == 6
 
+def test_generate_geometric_graph_from_dataframe(test_dataframe_3D):
+
+    G_voronoi = graph_generation_func.generate_geometric_graph(
+        test_dataframe_3D,
+        descriptors=[],
+        dCells=5,
+        image_is_2D=False,
+        min_area=0,
+        analyze_fluo_channels=False,
+        radius=1,
+        mask_channel=None,
+    )
+
+    assert isinstance(G_voronoi, nx.Graph)
+    assert len(G_voronoi.nodes()) == 4
+    assert len(G_voronoi.edges()) == 6
+
 
 def test_generate_contact_graph_2D(test_image_2D):
 
