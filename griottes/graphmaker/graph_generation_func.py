@@ -100,91 +100,103 @@ def generate_geometric_graph(
     return G
 
 
-def prep_points(cells: dict):
-
-    return [
-        [cells[cell_label]["z"], cells[cell_label]["x"], cells[cell_label]["y"]]
-        for cell_label in cells.keys()
-    ]
-
-
-def prep_points_2D(cells: dict):
-
-    return [
-        [cells[cell_label]["x"], cells[cell_label]["y"]] for cell_label in cells.keys()
-    ]
-
-
-def find_neighbors(tess):
-
-    neighbors = defaultdict(set)
-
-    for simplex in tess.simplices:
-        for idx in simplex:
-
-            other = set(simplex)
-            other.remove(idx)
-            neighbors[idx] = neighbors[idx].union(other)
-
-    return neighbors
-
-
-def prepare_user_entry(
+def generate_contact_graph(
     user_entry,
-    image_is_2D,
-    min_area,
-    analyze_fluo_channels,
-    fluo_channel_analysis_method,
-    radius,
-    mask_channel,
+    mask_channel=None,
+    min_area=0,
+    analyze_fluo_channels=True,
+    fluo_channel_analysis_method="basic",
+    radius=30,
+    descriptors=[],
 ):
 
+    """
+    Creates a contact graph.
+
+    This function creates a contact graph from an
+    image. The contact graph is a graph where each node
+    represents a region and each edge represents a contact
+    between two adjascent regions.
+
+    Parameters
+    ----------
+    user_entry : numpy.ndarray
+        contains the information on the cells.
+    descriptors : list, optional
+        contains the cell information included in the
+        network nodes.
+    dCells : float, optional
+        the maximum distance between two nodes.
+    image_is_2D : bool, optional
+        if True, the image is analyzed as a 2D image.
+        The default is False.
+    min_area : int, optional
+        the minimum area of a cell. The default is 0.
+    analyze_fluo_channels : bool, optional
+        if True, the fluorescence channels are analyzed.
+        The default is True.
+    radius : int, optional
+        Radius of the sphere within the which the fluorescence
+        is analyzed. Irrelevant for the 'basic' method.
+        The default is 30.
+    mask_channel : int, optional
+        The channel containing the cell masks
+        The default is None.
+
+    Returns
+    -------
+    nx.Graph
+        The graph representation of the input.
+    """
+
+    # create a data frame containing the relevant info
     if isinstance(user_entry, np.ndarray):
 
-        image_dim = len(user_entry.shape)
-        n_dim = image_dim
-
-        assert image_dim >= 2
-
-        if image_dim == 2:
-            n_dim = image_dim
-        elif image_dim == 3:
-            if image_is_2D:
-                n_dim = image_dim - 1
-            else:
-                print(
-                    f"Without any further instructions, the image is being analyzed as a {n_dim}D mono-channel mask. For a more detailed analysis, please use the `get_cell_properties` function."
-                )
-                n_dim = image_dim
-        elif image_dim == 4:
-            print(
-                f"Without any further instructions, the image is being analyzed as a {n_dim-1}D multi-channel image. For a more detailed analysis, please use the `get_cell_properties` function."
-            )
-            n_dim = image_dim - 1
-
-        user_entry = cell_property_extraction.get_cell_properties(
+        user_entry = create_region_contact_frame(
             user_entry,
+            image_is_2D=True,
+            mask_channel=mask_channel,
+            min_area=min_area,
             analyze_fluo_channels=analyze_fluo_channels,
             fluo_channel_analysis_method=fluo_channel_analysis_method,
             radius=radius,
-            min_area=min_area,
-            ndim=image_dim,
-            mask_channel=mask_channel,
         )
 
-        return user_entry
+    assert isinstance(user_entry, pandas.DataFrame)
 
-    elif isinstance(user_entry, pandas.DataFrame):
+    # create the connectivity graph
+    G = nx.Graph()
 
-        return user_entry
+    for ind, label_start in zip(user_entry.label.index, user_entry.label.values):
 
-    else:
+        neighbors = user_entry.neighbors[ind]
 
-        print(
-            "The entered object is neither an image (numpy array) nor a pandas DataFrame"
+        if isinstance(neighbors, dict):
+
+            for label_stop in neighbors.keys():
+
+                G.add_edge(label_start, label_stop, weight=neighbors[label_stop])
+
+    for descriptor in descriptors:
+        desc = {
+            int(i): (user_entry.loc[(user_entry.label == i)][descriptor].values[0])
+            for i in user_entry.label
+        }
+        nx.set_node_attributes(G, desc, descriptor)
+
+    # for the plotting function, pos = (z,x,y).
+    pos = {
+        int(i): (
+            0,
+            user_entry.loc[(user_entry.label == i)]["x"].values[0],
+            user_entry.loc[(user_entry.label == i)]["y"].values[0],
         )
+        for i in user_entry.label
+    }
+    nx.set_node_attributes(G, pos, "pos")
 
-        return
+    return G
+
 
 
 def generate_delaunay_graph(
@@ -298,6 +310,92 @@ def generate_delaunay_graph(
 
     return trim_graph_voronoi(G, dCells)
 
+
+def prep_points(cells: dict):
+
+    return [
+        [cells[cell_label]["z"], cells[cell_label]["x"], cells[cell_label]["y"]]
+        for cell_label in cells.keys()
+    ]
+
+
+def prep_points_2D(cells: dict):
+
+    return [
+        [cells[cell_label]["x"], cells[cell_label]["y"]] for cell_label in cells.keys()
+    ]
+
+
+def find_neighbors(tess):
+
+    neighbors = defaultdict(set)
+
+    for simplex in tess.simplices:
+        for idx in simplex:
+
+            other = set(simplex)
+            other.remove(idx)
+            neighbors[idx] = neighbors[idx].union(other)
+
+    return neighbors
+
+
+def prepare_user_entry(
+    user_entry,
+    image_is_2D,
+    min_area,
+    analyze_fluo_channels,
+    fluo_channel_analysis_method,
+    radius,
+    mask_channel,
+):
+
+    if isinstance(user_entry, np.ndarray):
+
+        image_dim = len(user_entry.shape)
+        n_dim = image_dim
+
+        assert image_dim >= 2
+
+        if image_dim == 2:
+            n_dim = image_dim
+        elif image_dim == 3:
+            if image_is_2D:
+                n_dim = image_dim - 1
+            else:
+                print(
+                    f"Without any further instructions, the image is being analyzed as a {n_dim}D mono-channel mask. For a more detailed analysis, please use the `get_cell_properties` function."
+                )
+                n_dim = image_dim
+        elif image_dim == 4:
+            print(
+                f"Without any further instructions, the image is being analyzed as a {n_dim-1}D multi-channel image. For a more detailed analysis, please use the `get_cell_properties` function."
+            )
+            n_dim = image_dim - 1
+
+        user_entry = cell_property_extraction.get_cell_properties(
+            user_entry,
+            analyze_fluo_channels=analyze_fluo_channels,
+            fluo_channel_analysis_method=fluo_channel_analysis_method,
+            radius=radius,
+            min_area=min_area,
+            ndim=image_dim,
+            mask_channel=mask_channel,
+        )
+
+        return user_entry
+
+    elif isinstance(user_entry, pandas.DataFrame):
+
+        return user_entry
+
+    else:
+
+        print(
+            "The entered object is neither an image (numpy array) nor a pandas DataFrame"
+        )
+
+        return
 
 def trim_graph_voronoi(G, dCells):
 
@@ -554,100 +652,3 @@ def create_region_contact_frame(
 
     return user_entry
 
-
-def generate_contact_graph(
-    user_entry,
-    mask_channel=None,
-    min_area=0,
-    analyze_fluo_channels=True,
-    fluo_channel_analysis_method="basic",
-    radius=30,
-    descriptors=[],
-):
-
-    """
-    Creates a contact graph.
-
-    This function creates a contact graph from an
-    image. The contact graph is a graph where each node
-    represents a region and each edge represents a contact
-    between two adjascent regions.
-
-    Parameters
-    ----------
-    user_entry : numpy.ndarray
-        contains the information on the cells.
-    descriptors : list, optional
-        contains the cell information included in the
-        network nodes.
-    dCells : float, optional
-        the maximum distance between two nodes.
-    image_is_2D : bool, optional
-        if True, the image is analyzed as a 2D image.
-        The default is False.
-    min_area : int, optional
-        the minimum area of a cell. The default is 0.
-    analyze_fluo_channels : bool, optional
-        if True, the fluorescence channels are analyzed.
-        The default is True.
-    radius : int, optional
-        Radius of the sphere within the which the fluorescence
-        is analyzed. Irrelevant for the 'basic' method.
-        The default is 30.
-    mask_channel : int, optional
-        The channel containing the cell masks
-        The default is None.
-
-    Returns
-    -------
-    nx.Graph
-        The graph representation of the input.
-    """
-
-    # create a data frame containing the relevant info
-    if isinstance(user_entry, np.ndarray):
-
-        user_entry = create_region_contact_frame(
-            user_entry,
-            image_is_2D=True,
-            mask_channel=mask_channel,
-            min_area=min_area,
-            analyze_fluo_channels=analyze_fluo_channels,
-            fluo_channel_analysis_method=fluo_channel_analysis_method,
-            radius=radius,
-        )
-
-    assert isinstance(user_entry, pandas.DataFrame)
-
-    # create the connectivity graph
-    G = nx.Graph()
-
-    for ind, label_start in zip(user_entry.label.index, user_entry.label.values):
-
-        neighbors = user_entry.neighbors[ind]
-
-        if isinstance(neighbors, dict):
-
-            for label_stop in neighbors.keys():
-
-                G.add_edge(label_start, label_stop, weight=neighbors[label_stop])
-
-    for descriptor in descriptors:
-        desc = {
-            int(i): (user_entry.loc[(user_entry.label == i)][descriptor].values[0])
-            for i in user_entry.label
-        }
-        nx.set_node_attributes(G, desc, descriptor)
-
-    # for the plotting function, pos = (z,x,y).
-    pos = {
-        int(i): (
-            0,
-            user_entry.loc[(user_entry.label == i)]["x"].values[0],
-            user_entry.loc[(user_entry.label == i)]["y"].values[0],
-        )
-        for i in user_entry.label
-    }
-    nx.set_node_attributes(G, pos, "pos")
-
-    return G

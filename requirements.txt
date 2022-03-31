@@ -5,8 +5,8 @@ pytest
 tqdm
 pandas
 sklearn
-tqdm
 matplotlib
 tifffile
 pip
 scikit-image
+seaborn
