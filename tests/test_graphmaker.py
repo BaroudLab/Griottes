@@ -79,7 +79,7 @@ def test_generate_delaunay_graph(test_image_2D):
     G_voronoi = graph_generation_func.generate_delaunay_graph(
         test_image_2D,
         descriptors=[],
-        dCells=60,
+        cell_cell_distance=60,
         image_is_2D=True,
         min_area=1,
         analyze_fluo_channels=False,
@@ -95,7 +95,7 @@ def test_generate_delaunay_graph_from_dataframe(test_dataframe_3D):
     G_voronoi = graph_generation_func.generate_delaunay_graph(
         test_dataframe_3D,
         descriptors=[],
-        dCells=5,
+        cell_cell_distance=5,
         image_is_2D=False,
         min_area=0,
         analyze_fluo_channels=False,
@@ -112,7 +112,7 @@ def test_generate_geometric_graph_from_dataframe(test_dataframe_3D):
     G_voronoi = graph_generation_func.generate_geometric_graph(
         test_dataframe_3D,
         descriptors=[],
-        dCells=5,
+        cell_cell_distance=5,
         image_is_2D=False,
         min_area=0,
         analyze_fluo_channels=False,
