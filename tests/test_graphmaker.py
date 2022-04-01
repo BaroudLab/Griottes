@@ -79,7 +79,7 @@ def test_generate_delaunay_graph(test_image_2D):
     G_voronoi = graph_generation_func.generate_delaunay_graph(
         test_image_2D,
         descriptors=[],
-        cell_cell_distance=60,
+        distance=60,
         image_is_2D=True,
         min_area=1,
         analyze_fluo_channels=False,
@@ -95,7 +95,7 @@ def test_generate_delaunay_graph_from_dataframe(test_dataframe_3D):
     G_voronoi = graph_generation_func.generate_delaunay_graph(
         test_dataframe_3D,
         descriptors=[],
-        cell_cell_distance=5,
+        distance=5,
         image_is_2D=False,
         min_area=0,
         analyze_fluo_channels=False,
@@ -112,7 +112,7 @@ def test_generate_geometric_graph_from_dataframe(test_dataframe_3D):
     G_voronoi = graph_generation_func.generate_geometric_graph(
         test_dataframe_3D,
         descriptors=[],
-        cell_cell_distance=5,
+        distance=5,
         image_is_2D=False,
         min_area=0,
         analyze_fluo_channels=False,
@@ -123,6 +123,37 @@ def test_generate_geometric_graph_from_dataframe(test_dataframe_3D):
     assert isinstance(G_voronoi, nx.Graph)
     assert len(G_voronoi.nodes()) == 4
     assert len(G_voronoi.edges()) == 6
+
+    pos_voronoi = nx.get_node_attributes(G_voronoi, "pos")
+
+    assert isinstance(pos_voronoi, dict)
+    assert len(pos_voronoi) == 4
+    assert isinstance(pos_voronoi[0], tuple)
+    assert len(pos_voronoi[0]) == 3
+
+def test_generate_geometric_graph_from_dataframe(test_dataframe_3D):
+
+    G_voronoi = graph_generation_func.generate_geometric_graph(
+        test_dataframe_3D,
+        descriptors=[],
+        distance=5,
+        image_is_2D=False,
+        min_area=0,
+        analyze_fluo_channels=False,
+        radius=1,
+        mask_channel=None,
+    )
+
+    assert isinstance(G_voronoi, nx.Graph)
+    assert len(G_voronoi.nodes()) == 4
+    assert len(G_voronoi.edges()) == 6
+
+    pos_voronoi = nx.get_node_attributes(G_voronoi, "pos")
+
+    assert isinstance(pos_voronoi, dict)
+    assert len(pos_voronoi) == 4
+    assert isinstance(pos_voronoi[0], tuple)
+    assert len(pos_voronoi[0]) == 3
 
 
 def test_generate_contact_graph_2D(test_image_2D):

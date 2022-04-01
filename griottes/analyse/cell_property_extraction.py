@@ -132,10 +132,10 @@ def basic_fluo_prop_analysis(properties, image, mask_channel):
 
 def sphere_mean_intensity(intensity_image, position, radius, percentile):
 
-    n_Z, n_X, n_Y = np.shape(intensity_image)
-    Z, X, Y = np.ogrid[:n_Z, :n_X, :n_Y]
+    n_Z, n_Y, n_X = np.shape(intensity_image)
+    Z, Y, X = np.ogrid[:n_Z, :n_Y, :n_X]
 
-    z_nuc, x_nuc, y_nuc = position
+    z_nuc, y_nuc, x_nuc = position
 
     mask = (
         np.sqrt((Z - z_nuc) ** 2 + (X - x_nuc) ** 2 + (Y - y_nuc) ** 2) < radius
@@ -158,8 +158,8 @@ def get_fluo_properties_sphere(
 
         position = (
             int(properties.loc[ind, "z"]),
-            int(properties.loc[ind, "x"]),
             int(properties.loc[ind, "y"]),
+            int(properties.loc[ind, "x"]),
         )
 
         mean, percentile = sphere_mean_intensity(
@@ -228,8 +228,8 @@ def in_hull(p, hull):
 
 def make_spherical_mask(image, point_coordinates, radius):
 
-    n_Z, n_X, n_Y = np.shape(image)
-    Z, X, Y = np.ogrid[:n_Z, :n_X, :n_Y]
+    n_Z, n_Y, n_X = np.shape(image)
+    Z, Y, X = np.ogrid[:n_Z, :n_Y, :n_X]
 
     z_nuc, x_nuc, y_nuc = point_coordinates
 
@@ -243,7 +243,7 @@ def make_voronoi_mask(properties, image, mask_channel, radius):
     intensity_image = image[..., mask_channel]
 
     label_matrix = np.zeros_like(intensity_image)
-    vor = Voronoi(properties[["z", "x", "y"]])
+    vor = Voronoi(properties[["z", "y", "x"]])
 
     print("Calculating voronoi")
 
@@ -415,14 +415,20 @@ def get_cell_properties(
         mask_channel = None
 
     if ndim == 2:
-        image = image[np.newaxis, ...]
+        properties = get_nuclei_properties(image=image, 
+                                        mask_channel=mask_channel)
 
-    properties = get_nuclei_properties(image=image, 
-                                       mask_channel=mask_channel)
+        properties = properties.rename(
+            columns={"centroid-0": "y", "centroid-1": "x"}
+        )
+    else:
 
-    properties = properties.rename(
-        columns={"centroid-0": "z", "centroid-1": "x", "centroid-2": "y"}
-    )
+        properties = get_nuclei_properties(image=image, 
+                                        mask_channel=mask_channel)
+
+        properties = properties.rename(
+            columns={"centroid-0": "z", "centroid-1": "y", "centroid-2": "x"}
+        )
 
     if cell_geometry_properties:
 

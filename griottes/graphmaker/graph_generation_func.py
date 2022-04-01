@@ -9,14 +9,14 @@ from griottes.graphmaker import make_spheroids
 from griottes.analyse import cell_property_extraction
 
 # IMPORTANT CONVENTIONS: Following standard practice,
-# all images have shapes Z, X, Y, C where C in the
+# all images have shapes Z, Y, X, C where C in the
 # fluo channel.
 
 
 def generate_geometric_graph(
     user_entry,
     descriptors: list = [],
-    cell_cell_distance: float = 60,
+    distance: float = 60,
     image_is_2D=False,
     min_area=0,
     analyze_fluo_channels=False,
@@ -37,7 +37,7 @@ def generate_geometric_graph(
     descriptors : list, optional
         contains the cell information included in the
         network nodes.
-    cell_cell_distance : float, optional
+    distance : float, optional
         the maximum distance between two nodes.
     image_is_2D : bool, optional
         if True, the image is analyzed as a 2D image.
@@ -70,6 +70,7 @@ def generate_geometric_graph(
         analyze_fluo_channels=analyze_fluo_channels,
         mask_channel=mask_channel,
     )
+
     assert isinstance(prop, pandas.DataFrame)
     assert set(["x", "y"]).issubset(prop.columns)
     assert set(descriptors).issubset(prop.columns)
@@ -80,19 +81,19 @@ def generate_geometric_graph(
 
     cells = spheroid["cells"]
 
-    if "z" in prop.columns:
+    if image_is_2D:
         # Generate a dict of positions
-        pos = {int(i): (cells[i]["x"], cells[i]["y"]) for i in cells.keys()}
+        pos = {int(i): (cells[i]["y"], cells[i]["x"]) for i in cells.keys()}
 
         # Create 2D network
-        G = nx.random_geometric_graph(len(cells), cell_cell_distance, pos=pos)
+        G = nx.random_geometric_graph(len(cells), distance, pos=pos)
 
     else:
         # Generate a dict of positions
-        pos = {int(i): (cells[i]["x"], cells[i]["y"], cells[i]["z"]) for i in cells.keys()}
+        pos = {int(i): (cells[i]["z"], cells[i]["y"], cells[i]["x"]) for i in cells.keys()}
 
         # Create 3D network
-        G = nx.random_geometric_graph(len(cells), cell_cell_distance, pos=pos)
+        G = nx.random_geometric_graph(len(cells), distance, pos=pos)
 
     label = {int(i): cells[i]["label"] for i in cells.keys()}
     nx.set_node_attributes(G, pos, "pos")
@@ -112,6 +113,7 @@ def generate_contact_graph(
     mask_channel=None,
     min_area=0,
     analyze_fluo_channels=True,
+    image_is_2D = True,
     fluo_channel_analysis_method="basic",
     radius=30,
     descriptors=[],
@@ -132,7 +134,7 @@ def generate_contact_graph(
     descriptors : list, optional
         contains the cell information included in the
         network nodes.
-    cell_cell_distance : float, optional
+    distance : float, optional
         the maximum distance between two nodes.
     image_is_2D : bool, optional
         if True, the image is analyzed as a 2D image.
@@ -161,7 +163,7 @@ def generate_contact_graph(
 
         user_entry = create_region_contact_frame(
             user_entry,
-            image_is_2D=True,
+            image_is_2D=image_is_2D,
             mask_channel=mask_channel,
             min_area=min_area,
             analyze_fluo_channels=analyze_fluo_channels,
@@ -170,6 +172,10 @@ def generate_contact_graph(
         )
 
     assert isinstance(user_entry, pandas.DataFrame)
+    assert set(["x", "y"]).issubset(user_entry.columns)
+
+    if not image_is_2D:
+        assert set(["z"]).issubset(user_entry.columns)
 
     # create the connectivity graph
     G = nx.Graph()
@@ -191,15 +197,25 @@ def generate_contact_graph(
         }
         nx.set_node_attributes(G, desc, descriptor)
 
-    # for the plotting function, pos = (z,x,y).
-    pos = {
-        int(i): (
-            0,
-            user_entry.loc[(user_entry.label == i)]["x"].values[0],
-            user_entry.loc[(user_entry.label == i)]["y"].values[0],
-        )
-        for i in user_entry.label
-    }
+    # for the plotting function, pos = (z,y,x).
+    if image_is_2D:
+        pos = {
+            int(i): (
+                user_entry.loc[(user_entry.label == i)]["x"].values[0],
+                user_entry.loc[(user_entry.label == i)]["y"].values[0],
+            )
+            for i in user_entry.label
+        }
+    else:
+        pos = {
+            int(i): (
+                user_entry.loc[(user_entry.label == i)]["z"].values[0],
+                user_entry.loc[(user_entry.label == i)]["y"].values[0],
+                user_entry.loc[(user_entry.label == i)]["x"].values[0],
+            )
+            for i in user_entry.label
+        }
+
     nx.set_node_attributes(G, pos, "pos")
 
     return G
@@ -209,7 +225,7 @@ def generate_contact_graph(
 def generate_delaunay_graph(
     user_entry,
     descriptors: list = [],
-    cell_cell_distance: float = 60,
+    distance: float = 60,
     image_is_2D=False,
     min_area=0,
     analyze_fluo_channels=False,
@@ -230,7 +246,7 @@ def generate_delaunay_graph(
     descriptors : list, optional
         contains the cell information included in the
         network nodes.
-    cell_cell_distance : float, optional
+    distance : float, optional
         the maximum distance between two nodes.
     image_is_2D : bool, optional
         if True, the image is analyzed as a 2D image.
@@ -315,13 +331,13 @@ def generate_delaunay_graph(
         desc = {int(i): (cells[i][descriptor]) for i in cells.keys()}
         nx.set_node_attributes(G, desc, descriptor)
 
-    return trim_graph_voronoi(G, cell_cell_distance)
+    return trim_graph_voronoi(G, distance)
 
 
 def prep_points(cells: dict):
 
     return [
-        [cells[cell_label]["x"], cells[cell_label]["y"], cells[cell_label]["z"]]
+        [cells[cell_label]["z"], cells[cell_label]["y"], cells[cell_label]["x"]]
         for cell_label in cells.keys()
     ]
 
@@ -329,7 +345,7 @@ def prep_points(cells: dict):
 def prep_points_2D(cells: dict):
 
     return [
-        [cells[cell_label]["x"], cells[cell_label]["y"]] for cell_label in cells.keys()
+        [cells[cell_label]["y"], cells[cell_label]["x"]] for cell_label in cells.keys()
     ]
 
 
@@ -404,17 +420,17 @@ def prepare_user_entry(
 
         return
 
-def trim_graph_voronoi(G, cell_cell_distance):
+def trim_graph_voronoi(G, distance):
 
     """
-    Remove slinks above the cell_cell_distance length. Serves to
+    Remove slinks above the distance length. Serves to
     remove unrealistic edges from the graph.
 
     Parameters
     ----------
     G : nx.Graph
         The graph representation of the input image/table.
-    cell_cell_distance : float
+    distance : float
         The maximum distance between two nodes.
 
     Output
@@ -433,7 +449,7 @@ def trim_graph_voronoi(G, cell_cell_distance):
         dy2 = (pos[i][1] - pos[j][1]) ** 2
         dz2 = (pos[i][2] - pos[j][2]) ** 2
 
-        if np.sqrt(dx2 + dy2 + dz2) > cell_cell_distance:
+        if np.sqrt(dx2 + dy2 + dz2) > distance:
 
             to_remove.append((i, j))
 
@@ -633,13 +649,17 @@ def create_region_contact_frame(
     # and link weight.
     if mask_channel is not None:
         if label_img[..., mask_channel].ndim == 2:
+            assert image_is_2D
             edge_frame = get_region_contacts_2D(label_img[..., mask_channel])
         elif label_img[..., mask_channel].ndim == 3:
+            assert  not image_is_2D
             edge_frame = get_region_contacts_3D(label_img[..., mask_channel])
     else:
         if label_img.ndim == 2:
+            assert image_is_2D
             edge_frame = get_region_contacts_2D(label_img)
         elif label_img.ndim == 3:
+            assert not image_is_2D
             edge_frame = get_region_contacts_3D(label_img)
 
     # get the region properties
