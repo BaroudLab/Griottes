@@ -336,7 +336,9 @@ def voronoi_fluo_property_analysis(
             )
 
             properties_fluo = properties_fluo.rename(
-                columns={"percentile_intensity": "percentile_intensity_channel_" + str(i)}
+                columns={
+                    "percentile_intensity": "percentile_intensity_channel_" + str(i)
+                }
             )
 
             properties = properties.merge(properties_fluo, how="outer", on="label")
@@ -379,7 +381,7 @@ def get_cell_properties(
     analyze_fluo_channels : bool
         If True, the fluorescence channels will be analyzed.
     fluo_channel_analysis_method : str
-        The method to be used to analyze the fluorescence channels. Either `basic`, 
+        The method to be used to analyze the fluorescence channels. Either `basic`,
         `local_voronoi`, or `local_sphere`.
     cell_geometry_properties : bool
         If True, the cell geometry properties will be calculated.
@@ -415,16 +417,12 @@ def get_cell_properties(
         mask_channel = None
 
     if ndim == 2:
-        properties = get_nuclei_properties(image=image, 
-                                        mask_channel=mask_channel)
+        properties = get_nuclei_properties(image=image, mask_channel=mask_channel)
 
-        properties = properties.rename(
-            columns={"centroid-0": "y", "centroid-1": "x"}
-        )
+        properties = properties.rename(columns={"centroid-0": "y", "centroid-1": "x"})
     else:
 
-        properties = get_nuclei_properties(image=image, 
-                                        mask_channel=mask_channel)
+        properties = get_nuclei_properties(image=image, mask_channel=mask_channel)
 
         properties = properties.rename(
             columns={"centroid-0": "z", "centroid-1": "y", "centroid-2": "x"}

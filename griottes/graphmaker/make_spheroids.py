@@ -10,8 +10,6 @@ def single_spheroid_process(spheroid_frame: pandas.DataFrame, descriptors: list 
 
     """
 
-
-    
     assert set(descriptors).issubset(spheroid_frame.columns)
 
     spheroid = {}

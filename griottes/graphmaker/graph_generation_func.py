@@ -320,7 +320,16 @@ def generate_delaunay_graph(
         else:
             G.add_node(cell)
 
-    pos = {int(i): (cells[i]["x"], cells[i]["y"], cells[i]["z"]) for i in cells.keys()}
+    if image_is_2D:
+        pos = {
+            int(i): (
+                cells[i]["x"],
+                cells[i]["y"],
+            )
+            for i in cells
+        }
+    else:
+        pos = {int(i): (cells[i]["x"], cells[i]["y"], cells[i]["z"]) for i in cells.keys()}
     label = {int(i): cells[i]["label"] for i in cells.keys()}
 
     nx.set_node_attributes(G, pos, "pos")
@@ -331,7 +340,7 @@ def generate_delaunay_graph(
         desc = {int(i): (cells[i][descriptor]) for i in cells.keys()}
         nx.set_node_attributes(G, desc, descriptor)
 
-    return trim_graph_voronoi(G, distance)
+    return trim_graph_voronoi(G, distance, image_is_2D)
 
 
 def prep_points(cells: dict):
@@ -420,7 +429,7 @@ def prepare_user_entry(
 
         return
 
-def trim_graph_voronoi(G, distance):
+def trim_graph_voronoi(G, distance, image_is_2D):
 
     """
     Remove slinks above the distance length. Serves to
@@ -432,6 +441,8 @@ def trim_graph_voronoi(G, distance):
         The graph representation of the input image/table.
     distance : float
         The maximum distance between two nodes.
+    image_is_2D : bool
+        If True, the image is 2D.
 
     Output
     ------
@@ -442,16 +453,29 @@ def trim_graph_voronoi(G, distance):
     edges = G.edges()
     to_remove = []
 
-    for e in edges:
+    if image_is_2D:
+        for e in edges:
 
-        i, j = e
-        dx2 = (pos[i][0] - pos[j][0]) ** 2
-        dy2 = (pos[i][1] - pos[j][1]) ** 2
-        dz2 = (pos[i][2] - pos[j][2]) ** 2
+            i, j = e
+            dx2 = (pos[i][0] - pos[j][0]) ** 2
+            dy2 = (pos[i][1] - pos[j][1]) ** 2
 
-        if np.sqrt(dx2 + dy2 + dz2) > distance:
+            if np.sqrt(dx2 + dy2) > distance:
 
-            to_remove.append((i, j))
+                to_remove.append((i, j))
+
+    else:
+
+        for e in edges:
+
+            i, j = e
+            dx2 = (pos[i][0] - pos[j][0]) ** 2
+            dy2 = (pos[i][1] - pos[j][1]) ** 2
+            dz2 = (pos[i][2] - pos[j][2]) ** 2
+
+            if np.sqrt(dx2 + dy2 + dz2) > distance:
+
+                to_remove.append((i, j))
 
     for e in to_remove:
 
