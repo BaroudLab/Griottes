@@ -10,27 +10,26 @@ def single_spheroid_process(spheroid_frame: pandas.DataFrame, descriptors: list 
 
     """
 
-    # If the original dataframe is only 2D, then transform the 2D
-    # data to 3D.
-    if "z" not in spheroid_frame.columns:
-
-        spheroid_frame["z"] = 0
-
-    assert set(["z", "x", "y"]).issubset(spheroid_frame.columns)
     assert set(descriptors).issubset(spheroid_frame.columns)
 
     spheroid = {}
-
     cells = {}
+
+    # Only include "z" if it exists
+    if "z" in spheroid_frame.columns:
+        cols_to_add = ["label", "x", "y", "z"]
+        assert set(["label", "z", "x", "y"]).issubset(spheroid_frame.columns)
+    else:
+        cols_to_add = ["label", "x", "y"]
+        assert set(["label", "x", "y"]).issubset(spheroid_frame.columns)
 
     for ind in spheroid_frame.index:
 
         unique_cell = {}
 
-        unique_cell["x"] = spheroid_frame.loc[ind, "x"]
-        unique_cell["y"] = spheroid_frame.loc[ind, "y"]
-        unique_cell["z"] = spheroid_frame.loc[ind, "z"]
-        unique_cell["label"] = spheroid_frame.loc[ind, "label"]
+        for col in cols_to_add:
+
+            unique_cell[col] = spheroid_frame.loc[ind, col]
 
         for descriptor in descriptors:
 
