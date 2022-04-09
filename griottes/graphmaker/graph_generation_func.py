@@ -74,6 +74,7 @@ def generate_geometric_graph(
     assert isinstance(prop, pandas.DataFrame)
     assert set(["x", "y"]).issubset(prop.columns)
     assert set(descriptors).issubset(prop.columns)
+    image_is_2D = (False if "z" in prop.columns else True)
 
     prop.index = np.arange(len(prop))
 
