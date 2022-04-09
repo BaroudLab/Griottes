@@ -203,8 +203,8 @@ def generate_contact_graph(
     if image_is_2D:
         pos = {
             int(i): (
-                user_entry.loc[(user_entry.label == i)]["x"].values[0],
                 user_entry.loc[(user_entry.label == i)]["y"].values[0],
+                user_entry.loc[(user_entry.label == i)]["x"].values[0],
             )
             for i in user_entry.label
         }
