@@ -348,12 +348,16 @@ def generate_delaunay_graph(
 
 
 def prep_points(cells: dict):
-
-    return [
-        [cells[cell_label]["z"], cells[cell_label]["y"], cells[cell_label]["x"]]
-        for cell_label in cells.keys()
-    ]
-
+    try:
+        return [
+            [cells[cell_label]["z"], cells[cell_label]["y"], cells[cell_label]["x"]]
+            for cell_label in cells.keys()
+        ]
+    except KeyError:
+        return [
+            [cells[cell_label]["y"], cells[cell_label]["x"]]
+            for cell_label in cells.keys()
+        ]
 
 def prep_points_2D(cells: dict):
 
