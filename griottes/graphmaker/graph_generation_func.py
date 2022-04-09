@@ -322,16 +322,18 @@ def generate_delaunay_graph(
         else:
             G.add_node(cell)
 
-    if image_is_2D:
+    try:
+        pos = {int(i): (cells[i]["x"], cells[i]["y"], cells[i]["z"]) for i in cells.keys()}
+    except KeyError:
         pos = {
             int(i): (
-                cells[i]["x"],
                 cells[i]["y"],
+                cells[i]["x"],
             )
             for i in cells
         }
-    else:
-        pos = {int(i): (cells[i]["x"], cells[i]["y"], cells[i]["z"]) for i in cells.keys()}
+        image_is_2D = True
+    
     label = {int(i): cells[i]["label"] for i in cells.keys()}
 
     nx.set_node_attributes(G, pos, "pos")
