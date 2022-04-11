@@ -49,8 +49,13 @@ def network_plot_2D(
 
     for i, j in enumerate(G.edges(data=True)):
 
+<<<<<<< HEAD
         x = np.array((pos[j[0]][0], pos[j[1]][0]))
         y = np.array((pos[j[0]][1], pos[j[1]][1]))
+=======
+        x = np.array((pos[j[0]][1], pos[j[1]][1]))
+        y = np.array((pos[j[0]][0], pos[j[1]][0]))
+>>>>>>> 11a4354c4a04f1abcf237964d1c07ed0a2359132
 
         # Plot the connecting lines
         if weights:
@@ -67,8 +72,13 @@ def network_plot_2D(
     nodelegend = []
 
     for key, value in pos.items():
+<<<<<<< HEAD
         x.append(value[0])
         y.append(value[1])
+=======
+        x.append(value[1])
+        y.append(value[0])
+>>>>>>> 11a4354c4a04f1abcf237964d1c07ed0a2359132
         s.append(scatterpoint_size)
         nodeColor.append(colors[key])
 
