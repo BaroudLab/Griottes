@@ -3,6 +3,7 @@ import pandas
 import networkx as nx
 from scipy.spatial import Delaunay
 from scipy.spatial import ConvexHull
+from scipy.ndimage import binary_dilation
 from collections import defaultdict
 
 from griottes.graphmaker import make_spheroids
@@ -73,6 +74,7 @@ def generate_geometric_graph(
     assert isinstance(prop, pandas.DataFrame)
     assert set(["x", "y"]).issubset(prop.columns)
     assert set(descriptors).issubset(prop.columns)
+    image_is_2D = (False if "z" in prop.columns else True)
 
     prop.index = np.arange(len(prop))
 
@@ -108,6 +110,7 @@ def generate_contact_graph(
     fluo_channel_analysis_method="basic",
     radius=30,
     descriptors=[],
+    image_is_2D=False,
 ):
 
     """
@@ -184,15 +187,25 @@ def generate_contact_graph(
         }
         nx.set_node_attributes(G, desc, descriptor)
 
-    # for the plotting function, pos = (z,x,y).
-    pos = {
-        int(i): (
-            0,
-            user_entry.loc[(user_entry.label == i)]["x"].values[0],
-            user_entry.loc[(user_entry.label == i)]["y"].values[0],
-        )
-        for i in user_entry.label
-    }
+    # for the plotting function, pos = (z,y,x).
+    if image_is_2D:
+        pos = {
+            int(i): (
+                user_entry.loc[(user_entry.label == i)]["y"].values[0],
+                user_entry.loc[(user_entry.label == i)]["x"].values[0],
+            )
+            for i in user_entry.label
+        }
+    else:
+        pos = {
+            int(i): (
+                user_entry.loc[(user_entry.label == i)]["z"].values[0],
+                user_entry.loc[(user_entry.label == i)]["y"].values[0],
+                user_entry.loc[(user_entry.label == i)]["x"].values[0],
+            )
+            for i in user_entry.label
+        }
+
     nx.set_node_attributes(G, pos, "pos")
 
     return G
@@ -297,7 +310,18 @@ def generate_delaunay_graph(
         else:
             G.add_node(cell)
 
-    pos = {int(i): (cells[i]["z"], cells[i]["x"], cells[i]["y"]) for i in cells.keys()}
+    try:
+        pos = {int(i): (cells[i]["x"], cells[i]["y"], cells[i]["z"]) for i in cells.keys()}
+    except KeyError:
+        pos = {
+            int(i): (
+                cells[i]["y"],
+                cells[i]["x"],
+            )
+            for i in cells
+        }
+        image_is_2D = True
+    
     label = {int(i): cells[i]["label"] for i in cells.keys()}
 
     nx.set_node_attributes(G, pos, "pos")
@@ -312,12 +336,16 @@ def generate_delaunay_graph(
 
 
 def prep_points(cells: dict):
-
-    return [
-        [cells[cell_label]["z"], cells[cell_label]["x"], cells[cell_label]["y"]]
-        for cell_label in cells.keys()
-    ]
-
+    try:
+        return [
+            [cells[cell_label]["z"], cells[cell_label]["y"], cells[cell_label]["x"]]
+            for cell_label in cells.keys()
+        ]
+    except KeyError:
+        return [
+            [cells[cell_label]["y"], cells[cell_label]["x"]]
+            for cell_label in cells.keys()
+        ]
 
 def prep_points_2D(cells: dict):
 
@@ -511,31 +539,10 @@ def get_region_contacts_2D(mask_image):
     assert isinstance(mask_image, np.ndarray)
     assert mask_image.ndim == 2
 
-    # final output
-    edge_frame = pandas.DataFrame(columns=["label", "neighbors"])
-    region_list = np.unique(mask_image)
-    region_list = region_list[region_list > 0]  # exclude background
-
-    for region in np.unique(mask_image):
-
+    def get_neighbors(region):
         y = mask_image == region  # convert to Boolean
 
-        rolled = np.roll(y, 1, axis=0)  # shift down
-        rolled[0, :] = False
-        z = np.logical_or(y, rolled)
-
-        rolled = np.roll(y, -1, axis=0)  # shift up
-        rolled[-1, :] = False
-        z = np.logical_or(z, rolled)
-
-        rolled = np.roll(y, 1, axis=1)  # shift right
-        rolled[:, 0] = False
-        z = np.logical_or(z, rolled)
-
-        rolled = np.roll(y, -1, axis=1)  # shift left
-        rolled[:, -1] = False
-        z = np.logical_or(z, rolled)
-
+        z = binary_dilation(y)
         neigh, length = np.unique(np.extract(z, mask_image), return_counts=True)
 
         # remove the current region from the neighbor region list
@@ -543,12 +550,12 @@ def get_region_contacts_2D(mask_image):
         neigh = np.delete(neigh, ind)
         length = np.delete(length, ind)
 
-        new_row = {
+        return {
             "label": region,
             "neighbors": {neigh[i]: length[i] for i in range(len(neigh))},
         }
-        edge_frame = edge_frame.append(new_row, ignore_index=True)
-
+    # final output
+    edge_frame = pandas.DataFrame(map(get_neighbors, np.unique(mask_image)))
     return edge_frame
 
 

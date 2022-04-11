@@ -8,7 +8,7 @@ from sklearn.decomposition import PCA
 from tqdm import tqdm
 
 # IMPORTANT CONVENTIONS: Following standard practice,
-# all images hvae shapes Z, X, Y, C where C in the
+# all images hvae shapes C, Z, Y, X where C is the
 # fluo channel.
 
 
@@ -319,7 +319,7 @@ def voronoi_fluo_property_analysis(
 
     label_matrix = make_voronoi_mask(properties, image, mask_channel, radius)
 
-    for i in range(0, image.shape[-1], 1):
+    for i in range(image.shape[0]):
 
         if i != mask_channel:
 

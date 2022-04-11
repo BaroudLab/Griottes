@@ -7,7 +7,7 @@ from setuptools import setup
 
 setup(
     name="griottes",
-    version="0.0.1",
+    version="0.0.3",
     description="Python program to generate NetworkX graphs from segmented images.",
     author="Gustave Ronteix",
     author_email="gustave.ronteix@pasteur.fr",
@@ -18,13 +18,14 @@ setup(
         "Operating System :: OS Independent",
     ],
     install_requires=[
-        'numpy',
-        'scipy',
-        'networkx',
-        'tqdm',
-        'pandas',
-        'scikit-image',
-        'sklearn',
+        "numpy",
+        "scipy",
+        "networkx",
+        "tqdm",
+        "pandas",
+        "scikit-image",
+        "sklearn",
+        "matplotlib"
     ],
     packages=[
         "griottes",
