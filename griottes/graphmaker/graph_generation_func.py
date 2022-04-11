@@ -119,7 +119,6 @@ def generate_contact_graph(
     fluo_channel_analysis_method="basic",
     radius=30,
     descriptors=[],
-    image_is_2D=False,
 ):
 
     """
