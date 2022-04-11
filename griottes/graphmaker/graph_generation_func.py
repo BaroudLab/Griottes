@@ -580,6 +580,7 @@ def get_region_contacts_2D(mask_image):
             "label": region,
             "neighbors": {neigh[i]: length[i] for i in range(len(neigh))},
         }
+
     # final output
     edge_frame = pandas.DataFrame(map(get_neighbors, np.unique(mask_image)))
     return edge_frame
@@ -588,47 +589,18 @@ def get_region_contacts_2D(mask_image):
 def get_region_contacts_3D(mask_image):
 
     """
-    From a labeled 3D image create a dataframe containing the information
-    on all the links between regions.
+    From the masked image create a dataframe containing the information
+    on all the links between region.
 
     """
 
     assert isinstance(mask_image, np.ndarray)
     assert mask_image.ndim == 3
 
-    # final output
-    edge_frame = pandas.DataFrame(columns=["label", "neighbors"])
-    region_list = np.unique(mask_image)
-    region_list = region_list[region_list > 0]  # exclude background
-
-    for region in np.unique(mask_image):
-
+    def get_neighbors(region):
         y = mask_image == region  # convert to Boolean
 
-        rolled = np.roll(y, 1, axis=0)  # shift down
-        rolled[0, :, :] = False
-        z = np.logical_or(y, rolled)
-
-        rolled = np.roll(y, -1, axis=0)  # shift up
-        rolled[-1, :, :] = False
-        z = np.logical_or(z, rolled)
-
-        rolled = np.roll(y, 1, axis=1)  # shift right
-        rolled[:, 0, :] = False
-        z = np.logical_or(z, rolled)
-
-        rolled = np.roll(y, -1, axis=1)  # shift left
-        rolled[:, -1, :] = False
-        z = np.logical_or(z, rolled)
-
-        rolled = np.roll(y, 1, axis=2)  # shift right
-        rolled[:, :, 0] = False
-        z = np.logical_or(z, rolled)
-
-        rolled = np.roll(y, -1, axis=2)  # shift left
-        rolled[:, :, -1] = False
-        z = np.logical_or(z, rolled)
-
+        z = binary_dilation(y)
         neigh, length = np.unique(np.extract(z, mask_image), return_counts=True)
 
         # remove the current region from the neighbor region list
@@ -636,12 +608,13 @@ def get_region_contacts_3D(mask_image):
         neigh = np.delete(neigh, ind)
         length = np.delete(length, ind)
 
-        new_row = {
+        return {
             "label": region,
             "neighbors": {neigh[i]: length[i] for i in range(len(neigh))},
         }
-        edge_frame = edge_frame.append(new_row, ignore_index=True)
 
+    # final output
+    edge_frame = pandas.DataFrame(map(get_neighbors, np.unique(mask_image)))
     return edge_frame
 
 
