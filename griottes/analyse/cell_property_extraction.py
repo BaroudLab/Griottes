@@ -41,7 +41,7 @@ def get_nuclei_properties(image, mask_channel):
 
         properties = pandas.DataFrame(
             skimage.measure.regionprops_table(
-                image[..., mask_channel], properties=["centroid", "area", "label"]
+                image[mask_channel], properties=["centroid", "area", "label"]
             )
         )
 
@@ -55,7 +55,7 @@ def get_shape_properties(properties, image, mask_channel, min_area, ndim):
         if (properties.loc[ind, "area"] > min_area) & (ndim == 3):
 
             label = properties.loc[ind, "label"]
-            loc_mask = (image[..., mask_channel] == label) * 1
+            loc_mask = (image[mask_channel] == label) * 1
             nonzero = np.nonzero(loc_mask)
 
             pca = PCA(n_components=3)
@@ -78,7 +78,7 @@ def get_shape_properties(properties, image, mask_channel, min_area, ndim):
 
         if (properties.loc[ind, "area"] > min_area) & (ndim == 2):
 
-            loc_mask = (image[0, ..., mask_channel] == ind) * 1
+            loc_mask = (image[mask_channel] == ind) * 1
             nonzero = np.nonzero(loc_mask)
 
             pca = PCA(n_components=2)
@@ -99,8 +99,8 @@ def get_fluo_properties(image, fluo_channel, mask_channel=0):
 
     properties_fluo = pandas.DataFrame(
         skimage.measure.regionprops_table(
-            image[..., mask_channel],
-            intensity_image=image[..., fluo_channel],
+            image[mask_channel],
+            intensity_image=image[fluo_channel],
             properties=["mean_intensity", "label"],
         )
     )
@@ -163,7 +163,7 @@ def get_fluo_properties_sphere(
         )
 
         mean, percentile = sphere_mean_intensity(
-            intensity_image=image[..., fluo_channel],
+            intensity_image=image[fluo_channel],
             position=position,
             radius=radius,
             percentile=percentile,
@@ -240,7 +240,7 @@ def make_spherical_mask(image, point_coordinates, radius):
 
 def make_voronoi_mask(properties, image, mask_channel, radius):
 
-    intensity_image = image[..., mask_channel]
+    intensity_image = image[mask_channel]
 
     label_matrix = np.zeros_like(intensity_image)
     vor = Voronoi(properties[["z", "y", "x"]])
@@ -278,7 +278,7 @@ def get_fluo_properties_voronoi(
     properties, image, fluo_channel, label_matrix, percentile
 ):
 
-    intensity_image = image[..., fluo_channel]
+    intensity_image = image[fluo_channel]
 
     for ind, cell_label in tqdm(zip(properties.index, properties.label)):
 
