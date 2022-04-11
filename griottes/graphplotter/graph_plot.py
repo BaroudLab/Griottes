@@ -18,7 +18,6 @@ def network_plot_2D(
     alpha_line=0.6,
     scatterpoint_size=20,
     legend=False,
-    weights=False,
     edge_color="k",
     line_factor=1,
     legend_fontsize=18,
@@ -46,43 +45,30 @@ def network_plot_2D(
         plt.imshow(background_image, cmap="gray")
 
     # Loop on the pos dictionary to extract the x,y,z coordinates of each node
+    xy = {k:(v[1], v[0]) for k,v in pos.items()}
 
-    for i, j in enumerate(G.edges(data=True)):
+    lines = [np.array([xy[i] for i in ids]) for ids in list(G.edges)]
 
-        x = np.array((pos[j[0]][1], pos[j[1]][1]))
-        y = np.array((pos[j[0]][0], pos[j[1]][0]))
+    try:
+        weights = [1 * e[2]["weight"] for e in G.edges(data=True)]
+    except KeyError:
+        print("no weights", )
+        weights = [1] * len(lines)
+    _ = [[ax.plot(*l.T, c=edge_color,lw=w * line_factor, alpha=alpha_line) for l, w in zip(lines, weights)]]
 
-        # Plot the connecting lines
-        if weights:
-            weight = j[2]["weight"] * line_factor
-            plt.plot(y, x, c=edge_color, linewidth=weight, alpha=alpha_line)
 
-        else:
-            plt.plot(y, x, c=edge_color, alpha=alpha_line)
-
-    x = []
-    y = []
-    nodeColor = []
-    s = []
-    nodelegend = []
-
-    for key, value in pos.items():
-        x.append(value[1])
-        y.append(value[0])
-        s.append(scatterpoint_size)
-        nodeColor.append(colors[key])
-
-        if legend:
-            nodelegend.append(legend[key])
-
-    df = pandas.DataFrame()
-    df["x"] = x
-    df["y"] = y
-    df["s"] = s
-    df["nodeColor"] = nodeColor
-
-    if legend:
-        df["legend"] = nodelegend
+    df = pandas.DataFrame(
+        [
+            {
+                "x":v[0], 
+                "y": v[1], 
+                "s": scatterpoint_size, 
+                "nodeColor": colors[k],
+                "legend": (legend[k] if legend else None)
+            } 
+            for k,v in xy.items()
+        ]
+    )
 
     groups = df.groupby("nodeColor")
 
@@ -93,8 +79,8 @@ def network_plot_2D(
             name = group.legend.unique()[0]
 
             ax.plot(
-                group.y,
                 group.x,
+                group.y,
                 marker="o",
                 c=nodeColor,
                 markeredgewidth=1.5,
@@ -109,8 +95,8 @@ def network_plot_2D(
         else:
 
             ax.plot(
-                group.y,
                 group.x,
+                group.y,
                 marker="o",
                 c=nodeColor,
                 markeredgewidth=1.5,
@@ -145,12 +131,6 @@ def network_plot_3D(
     # Get node positions
     pos = nx.get_node_attributes(G, "pos")
 
-    # Get number of nodes
-    n = G.number_of_nodes()
-
-    # Get the maximum number of edges adjacent to a single node
-    edge_max = np.max([G.degree[i] for i in G])
-
     # We fill each node with its attributed color. If none
     # then color the node in red.
     colors = {}
@@ -169,43 +149,26 @@ def network_plot_3D(
     ax = fig.add_subplot(111, projection="3d")
 
     # Loop on the pos dictionary to extract the x,y,z coordinates of each node
+    
+    xyz = {k:(v[2], v[1], v[0]) for k,v in pos.items()}
 
-    for i, j in enumerate(G.edges()):
+    lines = [np.array([xyz[i] for i in ids]) for ids in list(G.edges)]
 
-        x = np.array((pos[j[0]][0], pos[j[1]][0]))
-        y = np.array((pos[j[0]][1], pos[j[1]][1]))
-        z = np.array((pos[j[0]][2], pos[j[1]][2]))
+    _ = [plt.plot(*l.T, c="k", alpha=alpha_line) for l in lines ]
 
-        # Plot the connecting lines
-        plt.plot(x, y, z, c="k", alpha=alpha_line)
-
-    x = []
-    y = []
-    z = []
-    nodeColor = []
-    s = []
-    nodelegend = []
-
-    for key, value in pos.items():
-        x.append(value[0])
-        y.append(value[1])
-        z.append(value[2])
-        s.append(scatterpoint_size)
-        nodeColor.append(colors[key])
-
-        if legend:
-            nodelegend.append(legend[key])
-
-    # define points
-    df = pandas.DataFrame()
-    df["x"] = x
-    df["y"] = y
-    df["z"] = z
-    df["s"] = s
-    df["nodeColor"] = nodeColor
-
-    if legend:
-        df["legend"] = nodelegend
+    df = pandas.DataFrame(
+        [
+            {
+                "x":v[0], 
+                "y": v[1],
+                "z": v[2], 
+                "s": scatterpoint_size, 
+                "nodeColor": colors[k],
+                "legend": (legend[k] if legend else None)
+            } 
+            for k,v in xyz.items()
+        ]
+    )
 
     groups = df.groupby("nodeColor")
 
