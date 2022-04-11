@@ -78,7 +78,7 @@ def get_shape_properties(properties, image, mask_channel, min_area, ndim):
 
         if (properties.loc[ind, "area"] > min_area) & (ndim == 2):
 
-            loc_mask = (image[mask_channel] == ind) * 1
+            loc_mask = (image[mask_channel, 0,] == ind) * 1
             nonzero = np.nonzero(loc_mask)
 
             pca = PCA(n_components=2)
