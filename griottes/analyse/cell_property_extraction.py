@@ -41,7 +41,7 @@ def get_nuclei_properties(image, mask_channel):
 
         properties = pandas.DataFrame(
             skimage.measure.regionprops_table(
-                image[..., mask_channel], properties=["centroid", "area", "label"]
+                image[mask_channel], properties=["centroid", "area", "label"]
             )
         )
 
@@ -55,7 +55,7 @@ def get_shape_properties(properties, image, mask_channel, min_area, ndim):
         if (properties.loc[ind, "area"] > min_area) & (ndim == 3):
 
             label = properties.loc[ind, "label"]
-            loc_mask = (image[..., mask_channel] == label) * 1
+            loc_mask = (image[mask_channel] == label) * 1
             nonzero = np.nonzero(loc_mask)
 
             pca = PCA(n_components=3)
@@ -78,7 +78,7 @@ def get_shape_properties(properties, image, mask_channel, min_area, ndim):
 
         if (properties.loc[ind, "area"] > min_area) & (ndim == 2):
 
-            loc_mask = (image[0, ..., mask_channel] == ind) * 1
+            loc_mask = (image[mask_channel] == ind) * 1
             nonzero = np.nonzero(loc_mask)
 
             pca = PCA(n_components=2)
@@ -99,8 +99,8 @@ def get_fluo_properties(image, fluo_channel, mask_channel=0):
 
     properties_fluo = pandas.DataFrame(
         skimage.measure.regionprops_table(
-            image[..., mask_channel],
-            intensity_image=image[..., fluo_channel],
+            image[mask_channel],
+            intensity_image=image[fluo_channel],
             properties=["mean_intensity", "label"],
         )
     )
@@ -132,10 +132,10 @@ def basic_fluo_prop_analysis(properties, image, mask_channel):
 
 def sphere_mean_intensity(intensity_image, position, radius, percentile):
 
-    n_Z, n_X, n_Y = np.shape(intensity_image)
-    Z, X, Y = np.ogrid[:n_Z, :n_X, :n_Y]
+    n_Z, n_Y, n_X = np.shape(intensity_image)
+    Z, Y, X = np.ogrid[:n_Z, :n_Y, :n_X]
 
-    z_nuc, x_nuc, y_nuc = position
+    z_nuc, y_nuc, x_nuc = position
 
     mask = (
         np.sqrt((Z - z_nuc) ** 2 + (X - x_nuc) ** 2 + (Y - y_nuc) ** 2) < radius
@@ -158,12 +158,12 @@ def get_fluo_properties_sphere(
 
         position = (
             int(properties.loc[ind, "z"]),
-            int(properties.loc[ind, "x"]),
             int(properties.loc[ind, "y"]),
+            int(properties.loc[ind, "x"]),
         )
 
         mean, percentile = sphere_mean_intensity(
-            intensity_image=image[..., fluo_channel],
+            intensity_image=image[fluo_channel],
             position=position,
             radius=radius,
             percentile=percentile,
@@ -228,8 +228,8 @@ def in_hull(p, hull):
 
 def make_spherical_mask(image, point_coordinates, radius):
 
-    n_Z, n_X, n_Y = np.shape(image)
-    Z, X, Y = np.ogrid[:n_Z, :n_X, :n_Y]
+    n_Z, n_Y, n_X = np.shape(image)
+    Z, Y, X = np.ogrid[:n_Z, :n_Y, :n_X]
 
     z_nuc, x_nuc, y_nuc = point_coordinates
 
@@ -240,10 +240,10 @@ def make_spherical_mask(image, point_coordinates, radius):
 
 def make_voronoi_mask(properties, image, mask_channel, radius):
 
-    intensity_image = image[..., mask_channel]
+    intensity_image = image[mask_channel]
 
     label_matrix = np.zeros_like(intensity_image)
-    vor = Voronoi(properties[["z", "x", "y"]])
+    vor = Voronoi(properties[["z", "y", "x"]])
 
     print("Calculating voronoi")
 
@@ -278,7 +278,7 @@ def get_fluo_properties_voronoi(
     properties, image, fluo_channel, label_matrix, percentile
 ):
 
-    intensity_image = image[..., fluo_channel]
+    intensity_image = image[fluo_channel]
 
     for ind, cell_label in tqdm(zip(properties.index, properties.label)):
 
@@ -336,7 +336,9 @@ def voronoi_fluo_property_analysis(
             )
 
             properties_fluo = properties_fluo.rename(
-                columns={"percentile_intensity": "percentile_intensity_channel_" + str(i)}
+                columns={
+                    "percentile_intensity": "percentile_intensity_channel_" + str(i)
+                }
             )
 
             properties = properties.merge(properties_fluo, how="outer", on="label")
@@ -379,7 +381,7 @@ def get_cell_properties(
     analyze_fluo_channels : bool
         If True, the fluorescence channels will be analyzed.
     fluo_channel_analysis_method : str
-        The method to be used to analyze the fluorescence channels. Either `basic`, 
+        The method to be used to analyze the fluorescence channels. Either `basic`,
         `local_voronoi`, or `local_sphere`.
     cell_geometry_properties : bool
         If True, the cell geometry properties will be calculated.
@@ -415,14 +417,16 @@ def get_cell_properties(
         mask_channel = None
 
     if ndim == 2:
-        image = image[np.newaxis, ...]
+        properties = get_nuclei_properties(image=image, mask_channel=mask_channel)
 
-    properties = get_nuclei_properties(image=image, 
-                                       mask_channel=mask_channel)
+        properties = properties.rename(columns={"centroid-0": "y", "centroid-1": "x"})
+    else:
 
-    properties = properties.rename(
-        columns={"centroid-0": "z", "centroid-1": "x", "centroid-2": "y"}
-    )
+        properties = get_nuclei_properties(image=image, mask_channel=mask_channel)
+
+        properties = properties.rename(
+            columns={"centroid-0": "z", "centroid-1": "y", "centroid-2": "x"}
+        )
 
     if cell_geometry_properties:
 
