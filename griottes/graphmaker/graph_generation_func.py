@@ -191,10 +191,9 @@ def generate_contact_graph(
         }
         nx.set_node_attributes(G, desc, descriptor)
 
-    # for the plotting function, pos = (z,x,y).
+    # for the plotting function, pos = (x,y).
     pos = {
         int(i): (
-            0,
             user_entry.loc[(user_entry.label == i)]["x"].values[0],
             user_entry.loc[(user_entry.label == i)]["y"].values[0],
         )
