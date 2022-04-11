@@ -25,6 +25,7 @@ setup(
         "pandas",
         "scikit-image",
         "sklearn",
+        "matplotlib"
     ],
     packages=[
         "griottes",
