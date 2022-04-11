@@ -13,7 +13,6 @@ from griottes.analyse import cell_property_extraction
 # all images have shapes Z, Y, X, C where C in the
 # fluo channel.
 
-
 def generate_geometric_graph(
     user_entry,
     descriptors: list = [],
