@@ -44,7 +44,7 @@ def network_plot_2D(
     if background_image is not None:
         plt.imshow(background_image, cmap="gray")
 
-    # Loop on the pos dictionary to extract the x,y,z coordinates of each node
+    # Loop on the pos dictionary to extract the z,y,x coordinates of each node
     xy = {k:(v[1], v[0]) for k,v in pos.items()}
 
     lines = [np.array([xy[i] for i in ids]) for ids in list(G.edges)]
