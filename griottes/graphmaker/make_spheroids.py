@@ -17,11 +17,11 @@ def single_spheroid_process(spheroid_frame: pandas.DataFrame, descriptors: list 
 
     # Only include "z" if it exists
     if "z" in spheroid_frame.columns:
-        cols_to_add = ["label", "x", "y", "z"]
-        assert set(["label", "z", "x", "y"]).issubset(spheroid_frame.columns)
+        cols_to_add = ["label", "z", "y", "x"]
+        assert set(["label", "z", "y", "x"]).issubset(spheroid_frame.columns)
     else:
-        cols_to_add = ["label", "x", "y"]
-        assert set(["label", "x", "y"]).issubset(spheroid_frame.columns)
+        cols_to_add = ["label", "y", "x"]
+        assert set(["label", "y", "x"]).issubset(spheroid_frame.columns)
 
     for ind in spheroid_frame.index:
 
@@ -45,7 +45,7 @@ def single_spheroid_process(spheroid_frame: pandas.DataFrame, descriptors: list 
 def generate_artificial_spheroid(n: int, ndims: int = 3):
 
     data = np.random.rand(n, ndims)
-    columns = ["x", "y", "z"]
+    columns = ["z", "y", "x"]
 
     Sf = pandas.DataFrame(data=data, columns=columns)
 
