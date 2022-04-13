@@ -45,42 +45,30 @@ def network_plot_2D(
         plt.imshow(background_image, cmap="gray")
 
     # Loop on the pos dictionary to extract the x,y,z coordinates of each node
-    for i, j in enumerate(G.edges(data=True)):
+    xy = {k:(v[1], v[0]) for k,v in pos.items()}
 
-        x = np.array((pos[j[0]][1], pos[j[1]][1]))
-        y = np.array((pos[j[0]][0], pos[j[1]][0]))
+    lines = [np.array([xy[i] for i in ids]) for ids in list(G.edges)]
 
-        # Plot the connecting lines
-        if weights:
-            weight = j[1]["weight"] * line_factor
-            plt.plot(y, x, c=edge_color, linewidth=weight, alpha=alpha_line)
+    try:
+        weights = [1 * e[2]["weight"] for e in G.edges(data=True)]
+    except KeyError:
+        print("no weights", )
+        weights = [1] * len(lines)
+    _ = [[ax.plot(*l.T, c=edge_color,lw=w * line_factor, alpha=alpha_line) for l, w in zip(lines, weights)]]
 
-        else:
-            plt.plot(y, x, c=edge_color, alpha=alpha_line)
 
-    x = []
-    y = []
-    nodeColor = []
-    s = []
-    nodelegend = []
-
-    for key, value in pos.items():
-        x.append(value[1])
-        y.append(value[0])
-        s.append(scatterpoint_size)
-        nodeColor.append(colors[key])
-
-        if legend:
-            nodelegend.append(legend[key])
-
-    df = pandas.DataFrame()
-    df["x"] = x
-    df["y"] = y
-    df["s"] = s
-    df["nodeColor"] = nodeColor
-
-    if legend:
-        df["legend"] = nodelegend
+    df = pandas.DataFrame(
+        [
+            {
+                "x":v[0], 
+                "y": v[1], 
+                "s": scatterpoint_size, 
+                "nodeColor": colors[k],
+                "legend": (legend[k] if legend else None)
+            } 
+            for k,v in xy.items()
+        ]
+    )
 
     groups = df.groupby("nodeColor")
 

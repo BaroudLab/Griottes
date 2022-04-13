@@ -25,6 +25,6 @@ jobs:
       
       - name: Test with TOX
         run: |
-          tox -p 3
+          tox
 
 
