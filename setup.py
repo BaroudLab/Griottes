@@ -7,13 +7,16 @@ from setuptools import setup
 
 setup(
     name="griottes",
-    version="0.0.3",
+    version="0.0.4",
     description="Python program to generate NetworkX graphs from segmented images.",
-    author="Gustave Ronteix",
+    author="Gustave Ronteix, Andrey Aristov",
     author_email="gustave.ronteix@pasteur.fr",
     url="https://github.com/BaroudLab/Griottes",
     classifiers=[
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
