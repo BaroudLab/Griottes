@@ -106,10 +106,12 @@ def test_generate_delaunay_graph_from_dataframe(test_dataframe_3D):
     assert len(G_voronoi.edges()) == 6
 
     pos = nx.get_node_attributes(G_voronoi, "pos")
-
     cell_positions = np.zeros((len(pos), len(pos[0])))
+    for (i, j), k in zip(pos.items(), np.arange(len(pos))):
 
-    np.testing.assert_array_equal(test_dataframe_3D[["z", "y", "x"]], pos)
+        cell_positions[k, :] = j
+
+    np.testing.assert_array_equal(test_dataframe_3D[["z", "y", "x"]], cell_positions)
 
 
 def test_generate_geometric_graph_from_dataframe(test_dataframe_3D):
