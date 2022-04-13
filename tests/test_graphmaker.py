@@ -91,7 +91,7 @@ def test_generate_delaunay_graph(test_image_2D):
 def test_generate_delaunay_graph_from_dataframe(test_dataframe_3D):
 
     G_voronoi = graph_generation_func.generate_delaunay_graph(
-        test_dataframe_3D[['z','y','x','label']],
+        test_dataframe_3D[["z", "y", "x", "label"]],
         descriptors=[],
         distance=5,
         image_is_2D=False,
@@ -105,8 +105,11 @@ def test_generate_delaunay_graph_from_dataframe(test_dataframe_3D):
     assert len(G_voronoi.nodes()) == 4
     assert len(G_voronoi.edges()) == 6
 
-    pos = nx.get_node_attributes(G_voronoi, 'pos')
-    np.testing.assert_array_equal(test_dataframe_3D[['z','y','x']], pos)
+    pos = nx.get_node_attributes(G_voronoi, "pos")
+
+    cell_positions = np.zeros((len(pos), len(pos[0])))
+
+    np.testing.assert_array_equal(test_dataframe_3D[["z", "y", "x"]], pos)
 
 
 def test_generate_geometric_graph_from_dataframe(test_dataframe_3D):
