@@ -322,11 +322,11 @@ def generate_delaunay_graph(
         else:
             G.add_node(cell)
 
-    if not image_is_2D:
+    try:
         pos = {
             int(i): (cells[i]["z"], cells[i]["y"], cells[i]["x"]) for i in cells.keys()
         }
-    elif image_is_2D:
+    except KeyError:
         pos = {int(i): (cells[i]["y"], cells[i]["x"]) for i in cells.keys()}
 
     label = {int(i): cells[i]["label"] for i in cells.keys()}
