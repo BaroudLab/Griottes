@@ -196,8 +196,7 @@ def test_generate_contact_graph_2D(test_image_2D):
     assert isinstance(G_contact, nx.Graph)
     assert len(G_contact.nodes()) == 3
     assert len(G_contact.edges()) == 3
-
-
+    
 def test_generate_contact_graph_3D(test_image_3D):
 
     G_contact = graph_generation_func.generate_contact_graph(
