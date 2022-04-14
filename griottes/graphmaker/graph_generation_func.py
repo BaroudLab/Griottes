@@ -5,6 +5,7 @@ from scipy.spatial import Delaunay
 from scipy.spatial import ConvexHull
 from scipy.ndimage import binary_dilation
 from collections import defaultdict
+from skimage.measure import label
 
 from griottes.graphmaker import make_spheroids
 from griottes.analyse import cell_property_extraction
@@ -408,6 +409,11 @@ def prepare_user_entry(
                 f"Without any further instructions, the image is being analyzed as a {n_dim-1}D multi-channel image. For a more detailed analysis, please use the `get_cell_properties` function."
             )
             n_dim = image_dim - 1
+
+        # check if the user_entry is a binary array transform it to a 
+        # labeled array. This allows graph generation from binary images.
+        if user_entry.dtype == np.bool:
+            user_entry = label(user_entry.astype(int))
 
         user_entry = cell_property_extraction.get_cell_properties(
             user_entry,

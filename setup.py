@@ -29,6 +29,7 @@ setup(
         "scikit-image",
         "sklearn",
         "matplotlib",
+        "seaborn"
     ],
     packages=[
         "griottes",
