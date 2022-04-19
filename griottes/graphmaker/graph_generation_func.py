@@ -5,6 +5,7 @@ from scipy.spatial import Delaunay
 from scipy.spatial import ConvexHull
 from scipy.ndimage import binary_dilation
 from collections import defaultdict
+from skimage.measure import label
 
 from griottes.graphmaker import make_spheroids
 from griottes.analyse import cell_property_extraction
@@ -12,6 +13,7 @@ from griottes.analyse import cell_property_extraction
 # IMPORTANT CONVENTIONS: Following standard practice,
 # all images have shapes Z, Y, X, C where C in the
 # fluo channel.
+
 
 def generate_geometric_graph(
     user_entry,
@@ -74,7 +76,7 @@ def generate_geometric_graph(
     assert isinstance(prop, pandas.DataFrame)
     assert set(["x", "y"]).issubset(prop.columns)
     assert set(descriptors).issubset(prop.columns)
-    image_is_2D = (False if "z" in prop.columns else True)
+    image_is_2D = False if "z" in prop.columns else True
 
     prop.index = np.arange(len(prop))
 
@@ -91,7 +93,9 @@ def generate_geometric_graph(
 
     else:
         # Generate a dict of positions
-        pos = {int(i): (cells[i]["z"], cells[i]["y"], cells[i]["x"]) for i in cells.keys()}
+        pos = {
+            int(i): (cells[i]["z"], cells[i]["y"], cells[i]["x"]) for i in cells.keys()
+        }
 
         # Create 3D network
         G = nx.random_geometric_graph(len(cells), distance, pos=pos)
@@ -114,7 +118,7 @@ def generate_contact_graph(
     mask_channel=None,
     min_area=0,
     analyze_fluo_channels=True,
-    image_is_2D = True,
+    image_is_2D=True,
     fluo_channel_analysis_method="basic",
     radius=30,
     descriptors=[],
@@ -222,7 +226,6 @@ def generate_contact_graph(
     return G
 
 
-
 def generate_delaunay_graph(
     user_entry,
     descriptors: list = [],
@@ -287,7 +290,6 @@ def generate_delaunay_graph(
     # table between the index and the label.
 
     prop.index = np.arange(len(prop))
-
     spheroid = make_spheroids.single_spheroid_process(prop, descriptors=descriptors)
 
     cells = spheroid["cells"]
@@ -322,17 +324,12 @@ def generate_delaunay_graph(
             G.add_node(cell)
 
     try:
-        pos = {int(i): (cells[i]["x"], cells[i]["y"], cells[i]["z"]) for i in cells.keys()}
-    except KeyError:
         pos = {
-            int(i): (
-                cells[i]["y"],
-                cells[i]["x"],
-            )
-            for i in cells
+            int(i): (cells[i]["z"], cells[i]["y"], cells[i]["x"]) for i in cells.keys()
         }
-        image_is_2D = True
-    
+    except KeyError:
+        pos = {int(i): (cells[i]["y"], cells[i]["x"]) for i in cells.keys()}
+
     label = {int(i): cells[i]["label"] for i in cells.keys()}
 
     nx.set_node_attributes(G, pos, "pos")
@@ -357,6 +354,7 @@ def prep_points(cells: dict):
             [cells[cell_label]["y"], cells[cell_label]["x"]]
             for cell_label in cells.keys()
         ]
+
 
 def prep_points_2D(cells: dict):
 
@@ -412,6 +410,11 @@ def prepare_user_entry(
             )
             n_dim = image_dim - 1
 
+        # check if the user_entry is a binary array transform it to a 
+        # labeled array. This allows graph generation from binary images.
+        if user_entry.dtype == np.bool:
+            user_entry = label(user_entry.astype(int))
+
         user_entry = cell_property_extraction.get_cell_properties(
             user_entry,
             analyze_fluo_channels=analyze_fluo_channels,
@@ -435,6 +438,7 @@ def prepare_user_entry(
         )
 
         return
+
 
 def trim_graph_voronoi(G, distance, image_is_2D):
 
@@ -635,7 +639,7 @@ def create_region_contact_frame(
             assert image_is_2D
             edge_frame = get_region_contacts_2D(label_img[..., mask_channel])
         elif label_img[..., mask_channel].ndim == 3:
-            assert  not image_is_2D
+            assert not image_is_2D
             edge_frame = get_region_contacts_3D(label_img[..., mask_channel])
     else:
         if label_img.ndim == 2:
@@ -661,4 +665,3 @@ def create_region_contact_frame(
     )
 
     return user_entry
-

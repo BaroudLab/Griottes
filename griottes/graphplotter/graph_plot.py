@@ -44,29 +44,37 @@ def network_plot_2D(
     if background_image is not None:
         plt.imshow(background_image, cmap="gray")
 
-    # Loop on the pos dictionary to extract the z,y,x coordinates of each node
-    xy = {k:(v[1], v[0]) for k,v in pos.items()}
+
+    # Loop on the pos dictionary to extract the x,y,z coordinates of each node
+    xy = {k: (v[1], v[0]) for k, v in pos.items()}
+
 
     lines = [np.array([xy[i] for i in ids]) for ids in list(G.edges)]
 
     try:
         weights = [1 * e[2]["weight"] for e in G.edges(data=True)]
     except KeyError:
-        print("no weights", )
+        print(
+            "no weights",
+        )
         weights = [1] * len(lines)
-    _ = [[ax.plot(*l.T, c=edge_color,lw=w * line_factor, alpha=alpha_line) for l, w in zip(lines, weights)]]
-
+    _ = [
+        [
+            ax.plot(*l.T, c=edge_color, lw=w * line_factor, alpha=alpha_line)
+            for l, w in zip(lines, weights)
+        ]
+    ]
 
     df = pandas.DataFrame(
         [
             {
-                "x":v[0], 
-                "y": v[1], 
-                "s": scatterpoint_size, 
+                "x": v[0],
+                "y": v[1],
+                "s": scatterpoint_size,
                 "nodeColor": colors[k],
-                "legend": (legend[k] if legend else None)
-            } 
-            for k,v in xy.items()
+                "legend": (legend[k] if legend else None),
+            }
+            for k, v in xy.items()
         ]
     )
 
@@ -149,24 +157,24 @@ def network_plot_3D(
     ax = fig.add_subplot(111, projection="3d")
 
     # Loop on the pos dictionary to extract the x,y,z coordinates of each node
-    
-    xyz = {k:(v[2], v[1], v[0]) for k,v in pos.items()}
+
+    xyz = {k: (v[2], v[1], v[0]) for k, v in pos.items()}
 
     lines = [np.array([xyz[i] for i in ids]) for ids in list(G.edges)]
 
-    _ = [plt.plot(*l.T, c="k", alpha=alpha_line) for l in lines ]
+    _ = [plt.plot(*l.T, c="k", alpha=alpha_line) for l in lines]
 
     df = pandas.DataFrame(
         [
             {
-                "x":v[0], 
+                "x": v[0],
                 "y": v[1],
-                "z": v[2], 
-                "s": scatterpoint_size, 
+                "z": v[2],
+                "s": scatterpoint_size,
                 "nodeColor": colors[k],
-                "legend": (legend[k] if legend else None)
-            } 
-            for k,v in xyz.items()
+                "legend": (legend[k] if legend else None),
+            }
+            for k, v in xyz.items()
         ]
     )
 
