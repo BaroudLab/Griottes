@@ -229,7 +229,6 @@ def generate_contact_graph(
 def generate_delaunay_graph(
     user_entry,
     descriptors: list = [],
-    distance: float = 60,
     image_is_2D=False,
     min_area=0,
     analyze_fluo_channels=False,
@@ -340,7 +339,7 @@ def generate_delaunay_graph(
         desc = {int(i): (cells[i][descriptor]) for i in cells.keys()}
         nx.set_node_attributes(G, desc, descriptor)
 
-    return trim_graph_voronoi(G, distance, image_is_2D)
+    return trim_graph_voronoi(G, radius, image_is_2D)
 
 
 def prep_points(cells: dict):

@@ -21,6 +21,7 @@ def network_plot_2D(
     edge_color="k",
     line_factor=1,
     legend_fontsize=18,
+    include_weights = False,
 ):
 
     # Get node positions
@@ -51,19 +52,31 @@ def network_plot_2D(
 
     lines = [np.array([xy[i] for i in ids]) for ids in list(G.edges)]
 
-    try:
-        weights = [1 * e[2]["weight"] for e in G.edges(data=True)]
-    except KeyError:
-        print(
-            "no weights",
-        )
-        weights = [1] * len(lines)
-    _ = [
-        [
-            ax.plot(*l.T, c=edge_color, lw=w * line_factor, alpha=alpha_line)
-            for l, w in zip(lines, weights)
+    if include_weights:
+        try:
+            weights = [1 * e[2]["weight"] for e in G.edges(data=True)]
+        except KeyError:
+            print(
+                "no weights",
+            )
+            weights = [1] * len(lines)
+        _ = [
+            [
+                ax.plot(*l.T, c=edge_color, lw=w * line_factor, alpha=alpha_line)
+                for l, w in zip(lines, weights)
+            ]
         ]
-    ]
+    
+    else:
+
+        weights = [1] * len(lines)
+        _ = [
+            [
+                ax.plot(*l.T, c=edge_color, lw=w * line_factor, alpha=alpha_line)
+                for l, w in zip(lines, weights)
+            ]
+        ]
+
 
     df = pandas.DataFrame(
         [
