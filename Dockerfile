@@ -1,8 +1,8 @@
-# syntax=docker/dockerfile:1
-
-FROM python:3.8-slim-buster
-WORKDIR /app
-COPY . .
-RUN pip install -r requirements.txt
-RUN pip install .
-RUN python -m pytest -v
+FROM jupyter/scipy-notebook:latest
+WORKDIR /home/jovyan
+RUN git clone https://github.com/BaroudLab/Griottes.git &&\
+    cd Griottes &&\
+    pip install .
+EXPOSE 8888
+WORKDIR /home/jovyan/Griottes/example_notebooks/
+CMD ["jupyter", "lab"]
