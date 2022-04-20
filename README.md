@@ -17,6 +17,8 @@ This is **🍒  Griottes🍒** a tool to maximize the amount of information you 
 
 # Installation
 
+## From source
+
 For the moment, only installation via the repository is possible, so you'll have to download it from the command line. In the command prompt enter:
 
 ```
@@ -30,6 +32,23 @@ pip install .
 ```
 
 The library is now installed on your computer. An example of the library can be accessed [here](./example_notebooks/).
+
+## From docker image
+
+``` docker run -it -p 8888:8888 ghcr.io/baroudlab/griottes:latest ```
+
+This will open jupyter lab in the folder with the sample notebooks (/home/jovyan/Griottes/example_notebooks) also containing paper figures.
+
+If you want to customize starting folder, just run 
+
+``` docker run -it -p 8888:8888 ghcr.io/baroudlab/griottes:latest jupyter lab --notebook-dir /home/jovyan/```
+
+In order to provide your own data to the notebooks, bind your local folder as follows:
+
+``` docker run -it -p 8892:8888 -v "${PWD}":/home/jovyan/work ghcr.io/baroudlab/griottes:latest jupyter lab --notebook-dir /home/jovyan/work```
+
+## Try in on Binder
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/BaroudLab/Griottes.git/container)
 
 # Example
 
