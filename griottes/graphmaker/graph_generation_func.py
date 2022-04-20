@@ -120,7 +120,7 @@ def generate_contact_graph(
     analyze_fluo_channels=True,
     image_is_2D=True,
     fluo_channel_analysis_method="basic",
-    radius=30,
+    distance=30,
     descriptors=[],
 ):
 
