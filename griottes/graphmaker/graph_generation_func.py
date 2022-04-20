@@ -120,8 +120,8 @@ def generate_contact_graph(
     analyze_fluo_channels=True,
     image_is_2D=True,
     fluo_channel_analysis_method="basic",
-    distance=30,
     descriptors=[],
+    radius=30,
 ):
 
     """
@@ -139,8 +139,6 @@ def generate_contact_graph(
     descriptors : list, optional
         contains the cell information included in the
         network nodes.
-    distance : float, optional
-        the maximum distance between two nodes.
     image_is_2D : bool, optional
         if True, the image is analyzed as a 2D image.
         The default is False.
