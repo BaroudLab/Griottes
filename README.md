@@ -3,7 +3,7 @@
 This is **🍒  Griottes🍒** a tool to maximize the amount of information you can extract from your microscopy images.
 
 # Project description
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/BaroudLab/Griottes.git/container)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/BaroudLab/Griottes.git/main)
 
 **Griottes** is an easy-to-use, one-stop, Python library to extract single-cell information from your images and return the data in a networkx graph recapitulating the tissue structure.
 
@@ -48,7 +48,7 @@ In order to provide your own data to the notebooks, bind your local folder as fo
 ``` docker run -it -p 8892:8888 -v "${PWD}":/home/jovyan/work ghcr.io/baroudlab/griottes:latest jupyter lab --notebook-dir /home/jovyan/work```
 
 ## Try in on Binder
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/BaroudLab/Griottes.git/container)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/BaroudLab/Griottes.git/main)
 
 # Example
 
