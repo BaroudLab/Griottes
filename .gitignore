@@ -152,8 +152,8 @@ cython_debug/
 *.pdf
 .tiff
 *.tiff
-.tif
 *.tif
+.tif
 
 .json
 *.json

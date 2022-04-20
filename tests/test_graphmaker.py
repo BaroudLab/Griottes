@@ -64,7 +64,7 @@ def test_prepare_user_entry(test_image_2D, test_image_3D, test_binary_image_2D):
         image_is_2D=True,
         min_area=1,
         analyze_fluo_channels=False,
-        fluo_channel_analysis_method=None,
+        fluo_channel_analysis_method='basic',
         radius=None,
         mask_channel=None,
     )
@@ -76,7 +76,7 @@ def test_prepare_user_entry(test_image_2D, test_image_3D, test_binary_image_2D):
         image_is_2D=False,
         min_area=1,
         analyze_fluo_channels=False,
-        fluo_channel_analysis_method=None,
+        fluo_channel_analysis_method='basic',
         radius=None,
         mask_channel=None,
     )
@@ -88,7 +88,7 @@ def test_prepare_user_entry(test_image_2D, test_image_3D, test_binary_image_2D):
         image_is_2D=True,
         min_area=1,
         analyze_fluo_channels=False,
-        fluo_channel_analysis_method=None,
+        fluo_channel_analysis_method='basic',
         radius=None,
         mask_channel=None,
     )

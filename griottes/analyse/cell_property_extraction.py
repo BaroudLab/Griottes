@@ -110,7 +110,7 @@ def get_fluo_properties(image, fluo_channel, mask_channel=0):
 
 def basic_fluo_prop_analysis(properties, image, mask_channel):
 
-    for i in range(0, image.shape[-1], 1):
+    for i in range(0, image.shape[0], 1):
 
         if i != mask_channel:
 

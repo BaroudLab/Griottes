@@ -120,8 +120,8 @@ def generate_contact_graph(
     analyze_fluo_channels=True,
     image_is_2D=True,
     fluo_channel_analysis_method="basic",
-    radius=30,
     descriptors=[],
+    radius=30,
 ):
 
     """
@@ -139,8 +139,6 @@ def generate_contact_graph(
     descriptors : list, optional
         contains the cell information included in the
         network nodes.
-    distance : float, optional
-        the maximum distance between two nodes.
     image_is_2D : bool, optional
         if True, the image is analyzed as a 2D image.
         The default is False.
@@ -229,11 +227,12 @@ def generate_contact_graph(
 def generate_delaunay_graph(
     user_entry,
     descriptors: list = [],
-    distance: float = 60,
     image_is_2D=False,
     min_area=0,
     analyze_fluo_channels=False,
+    fluo_channel_analysis_method="basic",
     radius=30,
+    distance=30,
     mask_channel=None,
 ):
 
@@ -260,10 +259,6 @@ def generate_delaunay_graph(
     analyze_fluo_channels : bool, optional
         if True, the fluorescence channels are analyzed.
         The default is False.
-    radius : int, optional
-        Radius of the sphere within the which the fluorescence
-        is analyzed. Irrelevant for the 'basic' method.
-        The default is 30.
     mask_channel : int, optional
         The channel containing the cell masks
         The default is None.
@@ -277,9 +272,9 @@ def generate_delaunay_graph(
     prop = prepare_user_entry(
         user_entry,
         image_is_2D,
-        fluo_channel_analysis_method="basic",
+        fluo_channel_analysis_method=fluo_channel_analysis_method,
+        radius = radius,
         min_area=min_area,
-        radius=radius,
         analyze_fluo_channels=analyze_fluo_channels,
         mask_channel=mask_channel,
     )
@@ -383,9 +378,12 @@ def prepare_user_entry(
     min_area,
     analyze_fluo_channels,
     fluo_channel_analysis_method,
-    radius,
     mask_channel,
+    radius = None,
 ):
+
+    if fluo_channel_analysis_method != 'basic':
+        assert radius is not None
 
     if isinstance(user_entry, np.ndarray):
 
