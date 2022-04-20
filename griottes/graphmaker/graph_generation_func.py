@@ -232,7 +232,9 @@ def generate_delaunay_graph(
     image_is_2D=False,
     min_area=0,
     analyze_fluo_channels=False,
+    fluo_channel_analysis_method="basic",
     radius=30,
+    distance=30,
     mask_channel=None,
 ):
 
@@ -259,10 +261,6 @@ def generate_delaunay_graph(
     analyze_fluo_channels : bool, optional
         if True, the fluorescence channels are analyzed.
         The default is False.
-    radius : int, optional
-        Radius of the sphere within the which the fluorescence
-        is analyzed. Irrelevant for the 'basic' method.
-        The default is 30.
     mask_channel : int, optional
         The channel containing the cell masks
         The default is None.
@@ -276,9 +274,9 @@ def generate_delaunay_graph(
     prop = prepare_user_entry(
         user_entry,
         image_is_2D,
-        fluo_channel_analysis_method="basic",
+        fluo_channel_analysis_method=fluo_channel_analysis_method,
+        radius = radius,
         min_area=min_area,
-        radius=radius,
         analyze_fluo_channels=analyze_fluo_channels,
         mask_channel=mask_channel,
     )
@@ -339,7 +337,7 @@ def generate_delaunay_graph(
         desc = {int(i): (cells[i][descriptor]) for i in cells.keys()}
         nx.set_node_attributes(G, desc, descriptor)
 
-    return trim_graph_voronoi(G, radius, image_is_2D)
+    return trim_graph_voronoi(G, distance, image_is_2D)
 
 
 def prep_points(cells: dict):
@@ -382,9 +380,12 @@ def prepare_user_entry(
     min_area,
     analyze_fluo_channels,
     fluo_channel_analysis_method,
-    radius,
     mask_channel,
+    radius = None,
 ):
+
+    if fluo_channel_analysis_method != 'basic':
+        assert radius is not None
 
     if isinstance(user_entry, np.ndarray):
 
