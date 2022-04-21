@@ -453,9 +453,11 @@ def trim_graph_voronoi(G, distance, image_is_2D):
     image_is_2D : bool
         If True, the image is 2D.
 
-    Output
-    ------
-    nx.Graph
+    Returns
+    -------
+    nx.Graph        
+        The graph representation of the input.
+
     """
 
     pos = nx.get_node_attributes(G, "pos")

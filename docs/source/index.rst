@@ -14,6 +14,7 @@ Contents
 
    installation
    usage
+   api
 
 
 

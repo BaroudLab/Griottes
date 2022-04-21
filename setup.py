@@ -29,7 +29,8 @@ setup(
         "scikit-image",
         "sklearn",
         "matplotlib",
-        "seaborn"
+        "seaborn",
+        "sphinx-rtd-theme"
     ],
     packages=[
         "griottes",
