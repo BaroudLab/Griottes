@@ -30,7 +30,6 @@ setup(
         "sklearn",
         "matplotlib",
         "seaborn",
-        "sphinx-rtd-theme"
     ],
     packages=[
         "griottes",
