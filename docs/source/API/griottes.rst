@@ -1,9 +1,6 @@
 griottes package
 ==================
 
-Submodules
-----------
-
 griottes.graphmaker.graph_generation_func
 ------------------------------------------
 
