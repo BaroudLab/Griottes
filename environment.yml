@@ -6,4 +6,6 @@ dependencies:
   - python=3.9
   - pandoc
   - nbsphinx
+  - ipython
+  - ipykernel
 prefix: /home/aaristov/miniconda3/envs/griottes
