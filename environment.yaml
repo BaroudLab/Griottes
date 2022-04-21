@@ -1,0 +1,7 @@
+name: griottes
+channels:
+  - defaults
+dependencies:
+  - python=3.9
+  - pandoc
+prefix: /home/aaristov/miniconda3/envs/griottes
