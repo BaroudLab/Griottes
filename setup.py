@@ -7,7 +7,7 @@ from setuptools import setup
 
 setup(
     name="griottes",
-    version="0.0.4",
+    version="0.0.5",
     description="Python program to generate NetworkX graphs from segmented images.",
     author="Gustave Ronteix, Andrey Aristov",
     author_email="gustave.ronteix@pasteur.fr",
