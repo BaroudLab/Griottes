@@ -3,11 +3,23 @@
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/BaroudLab/Griottes.git/main)
 [![Documentation Status](https://readthedocs.org/projects/griottes/badge/?version=latest)](https://griottes.readthedocs.io/en/latest/?badge=latest)
 
+- [🍒  `Griottes` 🍒](#--griottes-)
+- [I. Project description](#i-project-description)
+- [II. Installation](#ii-installation)
+  - [From source](#from-source)
+  - [From docker image](#from-docker-image)
+  - [Try in on Binder](#try-in-on-binder)
+- [III. Documentation](#iii-documentation)
+  - [Generating networks from labeled images or dataframes](#generating-networks-from-labeled-images-or-dataframes)
+- [IV. Example](#iv-example)
+  - [From a segmented image](#from-a-segmented-image)
+  - [From a dataframe](#from-a-dataframe)
+- [V. References](#v-references)
 # 🍒  `Griottes` 🍒 
 
 This is **🍒  Griottes🍒** a tool to maximize the amount of information you can extract from your microscopy images.
 
-# Project description
+# I. Project description
 
 **Griottes** is an easy-to-use, one-stop, Python library to extract single-cell information from your images and return the data in a networkx graph recapitulating the tissue structure.
 
@@ -19,7 +31,7 @@ This is **🍒  Griottes🍒** a tool to maximize the amount of information you 
 
 ![](images/griottes_example.png)
 
-# Installation
+# II. Installation
 
 ## From source
 
@@ -54,9 +66,73 @@ In order to provide your own data to the notebooks, bind your local folder as fo
 ## Try in on Binder
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/BaroudLab/Griottes.git/main)
 
-# Example
+# III. Documentation
 
+The full documentation is available at [Griottes documentation](https://griottes.readthedocs.io/en/latest/).
 
+## Generating networks from labeled images or dataframes
+
+The standard API for generating graphs is very similar for Delaunay, geometric and contact-based graphs. To generate a Delaunay graph the following function is available:
+```
+griottes.graphmaker.graph_generation_func.generate_delaunay_graph(user_entry,
+    descriptors: list = [],
+    image_is_2D=False,
+    min_area=0,
+    analyze_fluo_channels=False,
+    fluo_channel_analysis_method="basic",
+    radius=30,
+    distance=30,
+    mask_channel=None,
+)
+
+    """
+    Creates a Delaunay graph.
+
+    This function creates a Delaunay graph from an
+    image or a dataframe object.
+
+    Parameters
+    ----------
+    user_entry : pandas.DataFrame or numpy.ndarray
+        contains the information on the cells.
+    descriptors : list, optional
+        contains the cell information included in the
+        network nodes.
+    distance : float, optional
+        the maximum distance between two nodes.
+    fluo_channel_analysis_method : str, optional
+        the method used to analyze the fluorescence channels.
+        'basic' measures the fluorescence properties within
+        the cell mask, 'local_sphere' within a sphere of
+        radius 'radius' and 'local_voronoi' within the 
+        Voronoi tesselation of the cell.
+    radius: float, optional
+        radius of the sphere within the which the fluorescence
+        is analyzed. Irrelevant for the 'basic' fluorescence 
+        analysis method.
+    image_is_2D : bool, optional
+        if True, the image is analyzed as a 2D image.
+        The default is False.
+    min_area : int, optional
+        the minimum area of a cell. The default is 0.
+    analyze_fluo_channels : bool, optional
+        if True, the fluorescence channels are analyzed.
+        The default is False.
+    mask_channel : int, optional
+        The channel containing the cell masks
+        The default is None.
+
+    Returns
+    -------
+    nx.Graph
+        The graph representation of the input.
+    """
+
+```
+
+Similarly, for geometric graphs the user can call `griottes.graphmaker.graph_generation_func.generate_geometric_graph` to make a geometric graph and `griottes.graphmaker.graph_generation_func.generate_contact_graph` to make a contact graph.
+
+# IV. Example
 ## From a segmented image
 
 `Griottes` makes it easy to generate a network from segmented images. The resulting graph object is a networkx graph. Detailed examples can be found at this [link](https://github.com/BaroudLab/Griottes_paper).
@@ -85,3 +161,7 @@ G_delaunay = graph_generation_func.generate_delaunay_graph(dataframe,
 G_geometric = graph_generation_func.generate_geometric_graph(dataframe, 
                                                   descriptors = descriptors)
 ```
+
+# V. References
+
+[Griottes: a generalist tool for network generation from segmented tissue images](https://www.biorxiv.org/content/10.1101/2022.01.14.476345v1), Gustave Ronteix, Andrey Aristov, Valentin Bonnet, Sebastien Sart, Jeremie Sobel, Elric Esposito &  Charles N. Baroud.

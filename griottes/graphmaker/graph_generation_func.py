@@ -251,6 +251,16 @@ def generate_delaunay_graph(
         network nodes.
     distance : float, optional
         the maximum distance between two nodes.
+    fluo_channel_analysis_method : str, optional
+        the method used to analyze the fluorescence channels.
+        'basic' measures the fluorescence properties within
+        the cell mask, 'local_sphere' within a sphere of
+        radius 'radius' and 'local_voronoi' within the 
+        Voronoi tesselation of the cell.
+    radius: float, optional
+        radius of the sphere within the which the fluorescence
+        is analyzed. Irrelevant for the 'basic' fluorescence 
+        analysis method.
     image_is_2D : bool, optional
         if True, the image is analyzed as a 2D image.
         The default is False.
