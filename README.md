@@ -1,10 +1,13 @@
+
+![example workflow](https://github.com/BaroudLab/Griottes/actions/workflows/main.yml/badge.svg)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/BaroudLab/Griottes.git/main)
+[![Documentation Status](https://readthedocs.org/projects/griottes/badge/?version=latest)](https://griottes.readthedocs.io/en/latest/?badge=latest)
+
 # 🍒  `Griottes` 🍒 
 
 This is **🍒  Griottes🍒** a tool to maximize the amount of information you can extract from your microscopy images.
 
 # Project description
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/BaroudLab/Griottes.git/main)
-[![Documentation Status](https://readthedocs.org/projects/griottes/badge/?version=latest)](https://griottes.readthedocs.io/en/latest/?badge=latest)
 
 **Griottes** is an easy-to-use, one-stop, Python library to extract single-cell information from your images and return the data in a networkx graph recapitulating the tissue structure.
 
