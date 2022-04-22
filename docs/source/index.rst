@@ -3,6 +3,10 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+.. image:: https://github.com/BaroudLab/Griottes/actions/workflows/main.yml/badge.svg
+   :target: https://github.com/BaroudLab/Griottes/actions/workflows/main.yml/badge.svg
+   :alt: tests status
+
 .. image:: https://readthedocs.org/projects/griottes/badge/?version=latest
    :target: https://griottes.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
