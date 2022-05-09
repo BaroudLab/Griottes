@@ -3,7 +3,7 @@
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/BaroudLab/Griottes.git/main)
 [![Documentation Status](https://readthedocs.org/projects/griottes/badge/?version=latest)](https://griottes.readthedocs.io/en/latest/?badge=latest)
 
-- [🍒  `Griottes` 🍒](#--griottes-)
+[🍒  `Griottes` 🍒](#--griottes-)
 - [I. Project description](#i-project-description)
 - [II. Installation](#ii-installation)
   - [From source](#from-source)
