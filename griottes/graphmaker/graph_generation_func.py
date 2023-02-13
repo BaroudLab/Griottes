@@ -115,7 +115,7 @@ def generate_geometric_graph(
 
 def generate_contact_graph(
     labels_array:np.ndarray,
-    dataframe_with_descriptors:pd.DataFrame = None,
+    dataframe_with_descriptors:pandas.DataFrame = None,
     mask_channel=None,
     min_area=0,
     analyze_fluo_channels=True,
