@@ -203,8 +203,8 @@ def generate_contact_graph(
 
     for descriptor in descriptors:
         desc = {
-            int(i): (dataframe_with_descriptors.loc[(user_entry.label == i)][descriptor].values[0])
-            for i in user_entry.label
+            int(i): (dataframe_with_descriptors.loc[(dataframe_with_descriptors.label == i)][descriptor].values[0])
+            for i in dataframe_with_descriptors.label
         }
         nx.set_node_attributes(G, desc, descriptor)
 
