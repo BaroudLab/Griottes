@@ -11,7 +11,7 @@ from griottes.graphmaker import make_spheroids
 from griottes.analyse import cell_property_extraction
 
 # IMPORTANT CONVENTIONS: Following standard practice,
-# all images have shapes Z, Y, X, C where C in the
+# all images have shapes C, Z, Y, X where C in the
 # fluo channel.
 
 
