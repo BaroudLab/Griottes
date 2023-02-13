@@ -428,7 +428,7 @@ def prepare_user_entry(
 
         # check if the user_entry is a binary array transform it to a 
         # labeled array. This allows graph generation from binary images.
-        if user_entry.dtype == np.bool:
+        if user_entry.dtype == bool:
             user_entry = label(user_entry.astype(int))
 
         user_entry = cell_property_extraction.get_cell_properties(
