@@ -215,7 +215,7 @@ def generate_contact_graph(
                 neighbors_dataframe.loc[(neighbors_dataframe.label == i)]["y"].values[0],
                 neighbors_dataframe.loc[(neighbors_dataframe.label == i)]["x"].values[0],
             )
-            for i in user_entry.label
+            for i in neighbors_dataframe.label
         }
     else:
         pos = {
