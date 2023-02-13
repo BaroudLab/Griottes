@@ -222,7 +222,7 @@ def generate_contact_graph(
             int(i): (
                 neighbors_dataframe.loc[(neighbors_dataframe.label == i)]["z"].values[0],
                 neighbors_dataframe.loc[(neighbors_dataframe.label == i)]["y"].values[0],
-                neighbors_dataframe.loc[(user_entry.label == i)]["x"].values[0],
+                neighbors_dataframe.loc[(neighbors_dataframe.label == i)]["x"].values[0],
             )
             for i in neighbors_dataframe.label
         }
