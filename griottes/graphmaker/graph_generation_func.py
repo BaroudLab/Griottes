@@ -177,6 +177,7 @@ def generate_contact_graph(
             fluo_channel_analysis_method=fluo_channel_analysis_method,
             radius=radius,
         )
+        dataframe_with_descriptors = neighbors_dataframe
 
     assert isinstance(dataframe_with_descriptors, pandas.DataFrame)
     assert isinstance(neighbors_dataframe, pandas.DataFrame)
