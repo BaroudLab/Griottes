@@ -114,7 +114,8 @@ def generate_geometric_graph(
 
 
 def generate_contact_graph(
-    user_entry,
+    labels_array:np.ndarray,
+    dataframe_with_descriptors:pd.DataFrame = None,
     mask_channel=None,
     min_area=0,
     analyze_fluo_channels=True,
@@ -134,8 +135,10 @@ def generate_contact_graph(
 
     Parameters
     ----------
-    user_entry : numpy.ndarray
+    labels_array : numpy.ndarray
         contains the information on the cells.
+    dataframe_with_descriptors: pandas.DataFrame
+        Labels, coordinates and, you know, whatever you want to be included in the graph
     descriptors : list, optional
         contains the cell information included in the
         network nodes.
@@ -162,10 +165,11 @@ def generate_contact_graph(
     """
 
     # create a data frame containing the relevant info
-    if isinstance(user_entry, np.ndarray):
+    if isinstance(labels_array, np.ndarray) and dataframe_with_descriptors is None:
+        
 
-        user_entry = create_region_contact_frame(
-            user_entry,
+        neighbors_dataframe = create_region_contact_frame(
+            labels_array,
             image_is_2D=image_is_2D,
             mask_channel=mask_channel,
             min_area=min_area,
@@ -174,18 +178,21 @@ def generate_contact_graph(
             radius=radius,
         )
 
-    assert isinstance(user_entry, pandas.DataFrame)
-    assert set(["x", "y"]).issubset(user_entry.columns)
+    assert isinstance(dataframe_with_descriptors, pandas.DataFrame)
+    assert isinstance(neighbors_dataframe, pandas.DataFrame)
+    assert set(["x", "y"]).issubset(dataframe_with_descriptors.columns)
+    assert set(["x", "y"]).issubset(neighbors_dataframe.columns)
 
     if not image_is_2D:
-        assert set(["z"]).issubset(user_entry.columns)
+        assert set(["z"]).issubset(dataframe_with_descriptors.columns)
+        assert set(["z"]).issubset(neighbors_dataframe.columns)
 
     # create the connectivity graph
     G = nx.Graph()
 
-    for ind, label_start in zip(user_entry.label.index, user_entry.label.values):
+    for ind, label_start in zip(neighbors_dataframe.label.index, neighbors_dataframe.label.values):
 
-        neighbors = user_entry.neighbors[ind]
+        neighbors = neighbors_dataframe.neighbors[ind]
 
         if isinstance(neighbors, dict):
 
@@ -195,7 +202,7 @@ def generate_contact_graph(
 
     for descriptor in descriptors:
         desc = {
-            int(i): (user_entry.loc[(user_entry.label == i)][descriptor].values[0])
+            int(i): (dataframe_with_descriptors.loc[(user_entry.label == i)][descriptor].values[0])
             for i in user_entry.label
         }
         nx.set_node_attributes(G, desc, descriptor)
@@ -204,19 +211,19 @@ def generate_contact_graph(
     if image_is_2D:
         pos = {
             int(i): (
-                user_entry.loc[(user_entry.label == i)]["y"].values[0],
-                user_entry.loc[(user_entry.label == i)]["x"].values[0],
+                neighbors_dataframe.loc[(neighbors_dataframe.label == i)]["y"].values[0],
+                neighbors_dataframe.loc[(neighbors_dataframe.label == i)]["x"].values[0],
             )
             for i in user_entry.label
         }
     else:
         pos = {
             int(i): (
-                user_entry.loc[(user_entry.label == i)]["z"].values[0],
-                user_entry.loc[(user_entry.label == i)]["y"].values[0],
-                user_entry.loc[(user_entry.label == i)]["x"].values[0],
+                neighbors_dataframe.loc[(neighbors_dataframe.label == i)]["z"].values[0],
+                neighbors_dataframe.loc[(neighbors_dataframe.label == i)]["y"].values[0],
+                neighbors_dataframe.loc[(user_entry.label == i)]["x"].values[0],
             )
-            for i in user_entry.label
+            for i in neighbors_dataframe.label
         }
 
     nx.set_node_attributes(G, pos, "pos")
