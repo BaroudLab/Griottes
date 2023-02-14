@@ -28,10 +28,8 @@ def generate_geometric_graph(
 
     """
     Creates a geometric graph.
-
     This function creates a geometric graph from an
     image or a dataframe object.
-
     Parameters
     ----------
     user_entry : pandas.DataFrame or numpy.ndarray
@@ -56,7 +54,6 @@ def generate_geometric_graph(
     mask_channel : int, optional
         The channel containing the cell masks
         The default is None.
-
     Returns
     -------
     nx.Graph
@@ -127,12 +124,10 @@ def generate_contact_graph(
 
     """
     Creates a contact graph.
-
     This function creates a contact graph from an
     image. The contact graph is a graph where each node
     represents a region and each edge represents a contact
     between two adjascent regions.
-
     Parameters
     ----------
     labels_array : numpy.ndarray
@@ -157,7 +152,6 @@ def generate_contact_graph(
     mask_channel : int, optional
         The channel containing the cell masks
         The default is None.
-
     Returns
     -------
     nx.Graph
@@ -177,15 +171,14 @@ def generate_contact_graph(
             fluo_channel_analysis_method=fluo_channel_analysis_method,
             radius=radius,
         )
+    if dataframe_with_descriptors is None:
         dataframe_with_descriptors = neighbors_dataframe
 
     assert isinstance(dataframe_with_descriptors, pandas.DataFrame)
     assert isinstance(neighbors_dataframe, pandas.DataFrame)
-    assert set(["x", "y"]).issubset(dataframe_with_descriptors.columns)
     assert set(["x", "y"]).issubset(neighbors_dataframe.columns)
 
     if not image_is_2D:
-        assert set(["z"]).issubset(dataframe_with_descriptors.columns)
         assert set(["z"]).issubset(neighbors_dataframe.columns)
 
     # create the connectivity graph
@@ -200,13 +193,14 @@ def generate_contact_graph(
             for label_stop in neighbors.keys():
 
                 G.add_edge(label_start, label_stop, weight=neighbors[label_stop])
-
     for descriptor in descriptors:
-        desc = {
-            int(i): (dataframe_with_descriptors.loc[(dataframe_with_descriptors.label == i)][descriptor].values[0])
-            for i in dataframe_with_descriptors.label
-        }
-        nx.set_node_attributes(G, desc, descriptor)
+        try:
+            desc = {}
+            for i in dataframe_with_descriptors.label:
+                desc[int(i)] = (dataframe_with_descriptors.loc[(dataframe_with_descriptors.label == int(i))][descriptor].values[0])
+            nx.set_node_attributes(G, desc, descriptor)
+        except KeyError as e:
+	        print(f"Error descriptor :{descriptor},  label: {int(i)}, data: {dataframe_with_descriptors.loc[(dataframe_with_descriptors.label == int(i))].to_dict()}, {e}")
 
     # for the plotting function, pos = (z,y,x).
     if image_is_2D:
@@ -246,10 +240,8 @@ def generate_delaunay_graph(
 
     """
     Creates a Delaunay graph.
-
     This function creates a Delaunay graph from an
     image or a dataframe object.
-
     Parameters
     ----------
     user_entry : pandas.DataFrame or numpy.ndarray
@@ -280,7 +272,6 @@ def generate_delaunay_graph(
     mask_channel : int, optional
         The channel containing the cell masks
         The default is None.
-
     Returns
     -------
     nx.Graph
@@ -461,7 +452,6 @@ def trim_graph_voronoi(G, distance, image_is_2D):
     """
     Remove slinks above the distance length. Serves to
     remove unrealistic edges from the graph.
-
     Parameters
     ----------
     G : nx.Graph
@@ -470,12 +460,10 @@ def trim_graph_voronoi(G, distance, image_is_2D):
         The maximum distance between two nodes.
     image_is_2D : bool
         If True, the image is 2D.
-
     Returns
     -------
     nx.Graph        
         The graph representation of the input.
-
     """
 
     pos = nx.get_node_attributes(G, "pos")
@@ -581,7 +569,6 @@ def get_region_contacts_2D(mask_image):
     """
     From the masked image create a dataframe containing the information
     on all the links between region.
-
     """
 
     assert isinstance(mask_image, np.ndarray)
@@ -613,7 +600,6 @@ def get_region_contacts_3D(mask_image):
     """
     From the masked image create a dataframe containing the information
     on all the links between region.
-
     """
 
     assert isinstance(mask_image, np.ndarray)
@@ -683,3 +669,4 @@ def create_region_contact_frame(
     )
 
     return user_entry
+
