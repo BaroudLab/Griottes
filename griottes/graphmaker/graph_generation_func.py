@@ -165,7 +165,7 @@ def generate_contact_graph(
     """
 
     # create a data frame containing the relevant info
-    if isinstance(labels_array, np.ndarray) and dataframe_with_descriptors is None:
+    if isinstance(labels_array, np.ndarray):
         
 
         neighbors_dataframe = create_region_contact_frame(
