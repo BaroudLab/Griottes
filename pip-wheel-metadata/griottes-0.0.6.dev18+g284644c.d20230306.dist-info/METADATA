@@ -1,0 +1,27 @@
+Metadata-Version: 2.1
+Name: griottes
+Version: 0.0.6.dev18+g284644c.d20230306
+Summary: Python program to generate NetworkX graphs from segmented images.
+Home-page: https://github.com/BaroudLab/Griottes
+Author: Gustave Ronteix, Andrey Aristov
+Author-email: gustave.ronteix@pasteur.fr
+License: MIT
+Project-URL: Source code, "https://github.com/BaroudLab/Griottes",
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8
+License-File: LICENSE
+Requires-Dist: numpy
+Requires-Dist: scipy
+Requires-Dist: networkx
+Requires-Dist: tqdm
+Requires-Dist: pandas
+Requires-Dist: scikit-image
+Requires-Dist: scikit-learn
+Requires-Dist: matplotlib
+Requires-Dist: seaborn
+

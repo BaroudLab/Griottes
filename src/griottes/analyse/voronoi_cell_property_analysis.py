@@ -2,7 +2,6 @@ from scipy.spatial import Delaunay
 
 
 def in_hull(p, hull):
-
     """
     Test if points in `p` are in `hull`
 
@@ -19,7 +18,6 @@ def in_hull(p, hull):
 
 
 def get_cell_properties(cell, hull, image, mask_channel):
-
     # crop around cell (to avoid processing too
     # many pixels)
 

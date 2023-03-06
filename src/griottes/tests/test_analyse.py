@@ -7,7 +7,6 @@ from griottes.analyse import cell_property_extraction
 
 @pytest.fixture
 def test_image_2D():
-
     test_image = np.zeros((10, 10))
     test_image[:5, :] = 1
     test_image[5:, :] = 2
@@ -43,7 +42,6 @@ def test_get_nuclei_properties(test_image_2D):
 
 
 def test_get_cell_properties_2D(test_image_2D):
-
     properties = cell_property_extraction.get_cell_properties(
         image=test_image_2D,
         mask_channel=None,
@@ -62,7 +60,6 @@ def test_get_cell_properties_2D(test_image_2D):
 
 
 def test_get_cell_properties_3D(test_image_3D):
-
     properties = cell_property_extraction.get_cell_properties(
         image=test_image_3D,
         mask_channel=None,

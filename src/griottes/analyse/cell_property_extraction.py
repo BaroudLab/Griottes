@@ -13,7 +13,6 @@ from tqdm import tqdm
 
 
 def get_nuclei_properties(image, mask_channel):
-
     """
     Get properties of nuclei in image.
 
@@ -30,7 +29,6 @@ def get_nuclei_properties(image, mask_channel):
     """
 
     if mask_channel is None:
-
         properties = pandas.DataFrame(
             skimage.measure.regionprops_table(
                 image, properties=["centroid", "area", "label"]
@@ -38,7 +36,6 @@ def get_nuclei_properties(image, mask_channel):
         )
 
     else:
-
         properties = pandas.DataFrame(
             skimage.measure.regionprops_table(
                 image[mask_channel], properties=["centroid", "area", "label"]
@@ -49,11 +46,8 @@ def get_nuclei_properties(image, mask_channel):
 
 
 def get_shape_properties(properties, image, mask_channel, min_area, ndim):
-
     for ind in tqdm(properties.index, leave=False):
-
         if (properties.loc[ind, "area"] > min_area) & (ndim == 3):
-
             label = properties.loc[ind, "label"]
             loc_mask = (image[mask_channel] == label) * 1
             nonzero = np.nonzero(loc_mask)
@@ -77,7 +71,6 @@ def get_shape_properties(properties, image, mask_channel, min_area, ndim):
             )
 
         if (properties.loc[ind, "area"] > min_area) & (ndim == 2):
-
             loc_mask = (image[mask_channel] == ind) * 1
             nonzero = np.nonzero(loc_mask)
 
@@ -96,7 +89,6 @@ def get_shape_properties(properties, image, mask_channel, min_area, ndim):
 
 
 def get_fluo_properties(image, fluo_channel, mask_channel=0):
-
     properties_fluo = pandas.DataFrame(
         skimage.measure.regionprops_table(
             image[mask_channel],
@@ -109,11 +101,8 @@ def get_fluo_properties(image, fluo_channel, mask_channel=0):
 
 
 def basic_fluo_prop_analysis(properties, image, mask_channel):
-
     for i in range(0, image.shape[0], 1):
-
         if i != mask_channel:
-
             properties_fluo = get_fluo_properties(
                 image=image, fluo_channel=i, mask_channel=mask_channel
             )
@@ -131,7 +120,6 @@ def basic_fluo_prop_analysis(properties, image, mask_channel):
 
 
 def sphere_mean_intensity(intensity_image, position, radius, percentile):
-
     n_Z, n_Y, n_X = np.shape(intensity_image)
     Z, Y, X = np.ogrid[:n_Z, :n_Y, :n_X]
 
@@ -153,9 +141,7 @@ def sphere_mean_intensity(intensity_image, position, radius, percentile):
 def get_fluo_properties_sphere(
     properties, image, fluo_channel, radius, mask_channel, percentile
 ):
-
     for ind in properties.index:
-
         position = (
             int(properties.loc[ind, "z"]),
             int(properties.loc[ind, "y"]),
@@ -176,11 +162,8 @@ def get_fluo_properties_sphere(
 
 
 def sphere_fluo_property_analysis(properties, image, mask_channel, radius, percentile):
-
     for i in range(0, image.shape[-1], 1):
-
         if i != mask_channel:
-
             properties_fluo = get_fluo_properties_sphere(
                 properties=properties,
                 image=image,
@@ -210,7 +193,6 @@ def sphere_fluo_property_analysis(properties, image, mask_channel, radius, perce
 
 
 def in_hull(p, hull):
-
     """
     Test if points in `p` are in `hull`
 
@@ -227,7 +209,6 @@ def in_hull(p, hull):
 
 
 def make_spherical_mask(image, point_coordinates, radius):
-
     n_Z, n_Y, n_X = np.shape(image)
     Z, Y, X = np.ogrid[:n_Z, :n_Y, :n_X]
 
@@ -239,7 +220,6 @@ def make_spherical_mask(image, point_coordinates, radius):
 
 
 def make_voronoi_mask(properties, image, mask_channel, radius):
-
     intensity_image = image[mask_channel]
 
     label_matrix = np.zeros_like(intensity_image)
@@ -250,7 +230,6 @@ def make_voronoi_mask(properties, image, mask_channel, radius):
     for cell_label, point_number in tqdm(
         zip(properties.index, np.arange(len(properties)))
     ):
-
         region_label = properties.index[point_number]
         region_number = vor.point_region[point_number]
         voronoi_vertices = vor.regions[region_number]
@@ -277,11 +256,9 @@ def make_voronoi_mask(properties, image, mask_channel, radius):
 def get_fluo_properties_voronoi(
     properties, image, fluo_channel, label_matrix, percentile
 ):
-
     intensity_image = image[fluo_channel]
 
     for ind, cell_label in tqdm(zip(properties.index, properties.label)):
-
         # mask for quantification
         mask = np.zeros_like(label_matrix)
         mask[label_matrix == cell_label] = 1
@@ -309,7 +286,6 @@ def get_fluo_properties_voronoi(
 def voronoi_fluo_property_analysis(
     properties, image, mask_channel, radius, labeled_voronoi_tesselation, percentile
 ):
-
     """
 
     Calculate the voronoi mask, then use the mask to
@@ -320,9 +296,7 @@ def voronoi_fluo_property_analysis(
     label_matrix = make_voronoi_mask(properties, image, mask_channel, radius)
 
     for i in range(image.shape[0]):
-
         if i != mask_channel:
-
             properties_fluo = get_fluo_properties_voronoi(
                 properties=properties,
                 image=image,
@@ -347,7 +321,6 @@ def voronoi_fluo_property_analysis(
     del properties["percentile_intensity"]
 
     if labeled_voronoi_tesselation:
-
         return properties, label_matrix
 
     return properties
@@ -368,7 +341,6 @@ def get_cell_properties(
     percentile=95,
     ndim=3,
 ):
-
     """
     Calculate the cell properties for a given image.
 
@@ -421,7 +393,6 @@ def get_cell_properties(
 
         properties = properties.rename(columns={"centroid-0": "y", "centroid-1": "x"})
     else:
-
         properties = get_nuclei_properties(image=image, mask_channel=mask_channel)
 
         properties = properties.rename(
@@ -429,7 +400,6 @@ def get_cell_properties(
         )
 
     if cell_geometry_properties:
-
         print("Calculating geometrical properties")
 
         properties = get_shape_properties(
@@ -443,9 +413,7 @@ def get_cell_properties(
         print("Done geometrical properties")
 
     if analyze_fluo_channels:
-
         if fluo_channel_analysis_method == "basic":
-
             properties = basic_fluo_prop_analysis(properties, image, mask_channel)
 
             properties = properties.dropna()
@@ -454,7 +422,6 @@ def get_cell_properties(
             return properties
 
         if fluo_channel_analysis_method == "local_sphere":
-
             properties = sphere_fluo_property_analysis(
                 properties, image, mask_channel, radius, percentile
             )
@@ -465,7 +432,6 @@ def get_cell_properties(
             return properties
 
         if fluo_channel_analysis_method == "local_voronoi":
-
             # Need to create voronoi tesselation, then store the
             # vertixes and use them to mark the convex hull
             # corresponding to each cell nuclei. Once the region
@@ -476,7 +442,6 @@ def get_cell_properties(
             # the voronoi and a sphere of radius R.
 
             if labeled_voronoi_tesselation:
-
                 properties, label_matrix = voronoi_fluo_property_analysis(
                     properties,
                     image,
@@ -492,7 +457,6 @@ def get_cell_properties(
                 return properties, label_matrix
 
             else:
-
                 properties = voronoi_fluo_property_analysis(
                     properties,
                     image,
@@ -509,7 +473,6 @@ def get_cell_properties(
                 return properties
 
     else:
-
         properties = properties.dropna()
         properties.index = np.arange(len(properties))
         properties = properties[properties.area > min_area]

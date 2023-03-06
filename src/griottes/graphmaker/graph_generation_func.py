@@ -25,7 +25,6 @@ def generate_geometric_graph(
     radius=30,
     mask_channel=None,
 ):
-
     """
     Creates a geometric graph.
     This function creates a geometric graph from an
@@ -102,17 +101,15 @@ def generate_geometric_graph(
     nx.set_node_attributes(G, label, "label")
 
     for ind in list(G.nodes):
-
         for descriptor in descriptors:
-
             G.add_node(ind, descriptor=cells[ind][descriptor])
 
     return G
 
 
 def generate_contact_graph(
-    labels_array:np.ndarray,
-    dataframe_with_descriptors:pandas.DataFrame = None,
+    labels_array: np.ndarray,
+    dataframe_with_descriptors: pandas.DataFrame = None,
     mask_channel=None,
     min_area=0,
     analyze_fluo_channels=True,
@@ -121,7 +118,6 @@ def generate_contact_graph(
     descriptors=[],
     radius=30,
 ):
-
     """
     Creates a contact graph.
     This function creates a contact graph from an
@@ -160,8 +156,6 @@ def generate_contact_graph(
 
     # create a data frame containing the relevant info
     if isinstance(labels_array, np.ndarray):
-        
-
         neighbors_dataframe = create_region_contact_frame(
             labels_array,
             image_is_2D=image_is_2D,
@@ -184,39 +178,52 @@ def generate_contact_graph(
     # create the connectivity graph
     G = nx.Graph()
 
-    for ind, label_start in zip(neighbors_dataframe.label.index, neighbors_dataframe.label.values):
-
+    for ind, label_start in zip(
+        neighbors_dataframe.label.index, neighbors_dataframe.label.values
+    ):
         neighbors = neighbors_dataframe.neighbors[ind]
 
         if isinstance(neighbors, dict):
-
             for label_stop in neighbors.keys():
-
                 G.add_edge(label_start, label_stop, weight=neighbors[label_stop])
     for descriptor in descriptors:
         try:
             desc = {}
             for i in dataframe_with_descriptors.label:
-                desc[int(i)] = (dataframe_with_descriptors.loc[(dataframe_with_descriptors.label == int(i))][descriptor].values[0])
+                desc[int(i)] = dataframe_with_descriptors.loc[
+                    (dataframe_with_descriptors.label == int(i))
+                ][descriptor].values[0]
             nx.set_node_attributes(G, desc, descriptor)
         except KeyError as e:
-	        print(f"Error descriptor :{descriptor},  label: {int(i)}, data: {dataframe_with_descriptors.loc[(dataframe_with_descriptors.label == int(i))].to_dict()}, {e}")
+            print(
+                f"Error descriptor :{descriptor},  label: {int(i)}, data: {dataframe_with_descriptors.loc[(dataframe_with_descriptors.label == int(i))].to_dict()}, {e}"
+            )
 
     # for the plotting function, pos = (z,y,x).
     if image_is_2D:
         pos = {
             int(i): (
-                neighbors_dataframe.loc[(neighbors_dataframe.label == i)]["y"].values[0],
-                neighbors_dataframe.loc[(neighbors_dataframe.label == i)]["x"].values[0],
+                neighbors_dataframe.loc[(neighbors_dataframe.label == i)]["y"].values[
+                    0
+                ],
+                neighbors_dataframe.loc[(neighbors_dataframe.label == i)]["x"].values[
+                    0
+                ],
             )
             for i in neighbors_dataframe.label
         }
     else:
         pos = {
             int(i): (
-                neighbors_dataframe.loc[(neighbors_dataframe.label == i)]["z"].values[0],
-                neighbors_dataframe.loc[(neighbors_dataframe.label == i)]["y"].values[0],
-                neighbors_dataframe.loc[(neighbors_dataframe.label == i)]["x"].values[0],
+                neighbors_dataframe.loc[(neighbors_dataframe.label == i)]["z"].values[
+                    0
+                ],
+                neighbors_dataframe.loc[(neighbors_dataframe.label == i)]["y"].values[
+                    0
+                ],
+                neighbors_dataframe.loc[(neighbors_dataframe.label == i)]["x"].values[
+                    0
+                ],
             )
             for i in neighbors_dataframe.label
         }
@@ -237,7 +244,6 @@ def generate_delaunay_graph(
     distance=30,
     mask_channel=None,
 ):
-
     """
     Creates a Delaunay graph.
     This function creates a Delaunay graph from an
@@ -255,11 +261,11 @@ def generate_delaunay_graph(
         the method used to analyze the fluorescence channels.
         'basic' measures the fluorescence properties within
         the cell mask, 'local_sphere' within a sphere of
-        radius 'radius' and 'local_voronoi' within the 
+        radius 'radius' and 'local_voronoi' within the
         Voronoi tesselation of the cell.
     radius: float, optional
         radius of the sphere within the which the fluorescence
-        is analyzed. Irrelevant for the 'basic' fluorescence 
+        is analyzed. Irrelevant for the 'basic' fluorescence
         analysis method.
     image_is_2D : bool, optional
         if True, the image is analyzed as a 2D image.
@@ -282,7 +288,7 @@ def generate_delaunay_graph(
         user_entry,
         image_is_2D,
         fluo_channel_analysis_method=fluo_channel_analysis_method,
-        radius = radius,
+        radius=radius,
         min_area=min_area,
         analyze_fluo_channels=analyze_fluo_channels,
         mask_channel=mask_channel,
@@ -318,10 +324,8 @@ def generate_delaunay_graph(
     # criterion yet. --> need to add missing nodes.
 
     for cell in cells.keys():
-
         if cell in neighbors:
             for node in neighbors[cell]:
-
                 G.add_edge(cell, node)
 
         else:
@@ -340,7 +344,6 @@ def generate_delaunay_graph(
     nx.set_node_attributes(G, label, "label")
 
     for descriptor in descriptors:
-
         desc = {int(i): (cells[i][descriptor]) for i in cells.keys()}
         nx.set_node_attributes(G, desc, descriptor)
 
@@ -361,19 +364,16 @@ def prep_points(cells: dict):
 
 
 def prep_points_2D(cells: dict):
-
     return [
         [cells[cell_label]["y"], cells[cell_label]["x"]] for cell_label in cells.keys()
     ]
 
 
 def find_neighbors(tess):
-
     neighbors = defaultdict(set)
 
     for simplex in tess.simplices:
         for idx in simplex:
-
             other = set(simplex)
             other.remove(idx)
             neighbors[idx] = neighbors[idx].union(other)
@@ -388,14 +388,12 @@ def prepare_user_entry(
     analyze_fluo_channels,
     fluo_channel_analysis_method,
     mask_channel,
-    radius = None,
+    radius=None,
 ):
-
-    if fluo_channel_analysis_method != 'basic':
+    if fluo_channel_analysis_method != "basic":
         assert radius is not None
 
     if isinstance(user_entry, np.ndarray):
-
         image_dim = len(user_entry.shape)
         n_dim = image_dim
 
@@ -417,7 +415,7 @@ def prepare_user_entry(
             )
             n_dim = image_dim - 1
 
-        # check if the user_entry is a binary array transform it to a 
+        # check if the user_entry is a binary array transform it to a
         # labeled array. This allows graph generation from binary images.
         if user_entry.dtype == bool:
             user_entry = label(user_entry.astype(int))
@@ -435,11 +433,9 @@ def prepare_user_entry(
         return user_entry
 
     elif isinstance(user_entry, pandas.DataFrame):
-
         return user_entry
 
     else:
-
         print(
             "The entered object is neither an image (numpy array) nor a pandas DataFrame"
         )
@@ -448,7 +444,6 @@ def prepare_user_entry(
 
 
 def trim_graph_voronoi(G, distance, image_is_2D):
-
     """
     Remove slinks above the distance length. Serves to
     remove unrealistic edges from the graph.
@@ -462,7 +457,7 @@ def trim_graph_voronoi(G, distance, image_is_2D):
         If True, the image is 2D.
     Returns
     -------
-    nx.Graph        
+    nx.Graph
         The graph representation of the input.
     """
 
@@ -472,30 +467,24 @@ def trim_graph_voronoi(G, distance, image_is_2D):
 
     if image_is_2D:
         for e in edges:
-
             i, j = e
             dx2 = (pos[i][0] - pos[j][0]) ** 2
             dy2 = (pos[i][1] - pos[j][1]) ** 2
 
             if np.sqrt(dx2 + dy2) > distance:
-
                 to_remove.append((i, j))
 
     else:
-
         for e in edges:
-
             i, j = e
             dx2 = (pos[i][0] - pos[j][0]) ** 2
             dy2 = (pos[i][1] - pos[j][1]) ** 2
             dz2 = (pos[i][2] - pos[j][2]) ** 2
 
             if np.sqrt(dx2 + dy2 + dz2) > distance:
-
                 to_remove.append((i, j))
 
     for e in to_remove:
-
         i, j = e
         G.remove_edge(i, j)
 
@@ -503,12 +492,10 @@ def trim_graph_voronoi(G, distance, image_is_2D):
 
 
 def attribute_layer(G, image_is_2D=False):
-
     npoints = G.number_of_nodes()
     pos = nx.get_node_attributes(G, "pos")
 
     if image_is_2D:
-
         points = np.zeros((npoints, 2))
         layer = 0
 
@@ -521,7 +508,6 @@ def attribute_layer(G, image_is_2D=False):
         hull = ConvexHull(points)
 
     else:
-
         points = np.zeros((npoints, 3))
         layer = 0
 
@@ -565,7 +551,6 @@ def attribute_layer(G, image_is_2D=False):
 
 
 def get_region_contacts_2D(mask_image):
-
     """
     From the masked image create a dataframe containing the information
     on all the links between region.
@@ -596,7 +581,6 @@ def get_region_contacts_2D(mask_image):
 
 
 def get_region_contacts_3D(mask_image):
-
     """
     From the masked image create a dataframe containing the information
     on all the links between region.
@@ -635,7 +619,6 @@ def create_region_contact_frame(
     fluo_channel_analysis_method="basic",
     radius=0,
 ):
-
     # Need to work on label mask to get neighbors
     # and link weight.
     if mask_channel is not None:
@@ -669,4 +652,3 @@ def create_region_contact_frame(
     )
 
     return user_entry
-

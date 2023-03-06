@@ -1,1 +1,0 @@
-from .graph_generation_func import generate_contact_graph

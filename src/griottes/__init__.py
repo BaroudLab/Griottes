@@ -13,8 +13,4 @@ from .graphplotter.graph_plot import (
     network_plot_3D as plot_3D,
 )
 
-__all__ = [
-    generate_contact_graph,
-    generate_delaunay_graph,
-    generate_geometric_graph
-]
+__all__ = [generate_contact_graph, generate_delaunay_graph, generate_geometric_graph]

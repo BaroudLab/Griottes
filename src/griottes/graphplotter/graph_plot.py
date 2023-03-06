@@ -21,9 +21,8 @@ def network_plot_2D(
     edge_color="k",
     line_factor=1,
     legend_fontsize=18,
-    include_weights = False,
+    include_weights=False,
 ):
-
     # Get node positions
     pos = nx.get_node_attributes(G, "pos")
 
@@ -37,7 +36,6 @@ def network_plot_2D(
             colors[node] = "tab:blue"
 
     if legend:
-
         legend = nx.get_node_attributes(G, "legend")
 
     fig, ax = plt.subplots(figsize=figsize)
@@ -45,10 +43,8 @@ def network_plot_2D(
     if background_image is not None:
         plt.imshow(background_image, cmap="gray")
 
-
     # Loop on the pos dictionary to extract the x,y,z coordinates of each node
     xy = {k: (v[1], v[0]) for k, v in pos.items()}
-
 
     lines = [np.array([xy[i] for i in ids]) for ids in list(G.edges)]
 
@@ -66,9 +62,8 @@ def network_plot_2D(
                 for l, w in zip(lines, weights)
             ]
         ]
-    
-    else:
 
+    else:
         weights = [1] * len(lines)
         _ = [
             [
@@ -76,7 +71,6 @@ def network_plot_2D(
                 for l, w in zip(lines, weights)
             ]
         ]
-
 
     df = pandas.DataFrame(
         [
@@ -94,9 +88,7 @@ def network_plot_2D(
     groups = df.groupby("nodeColor")
 
     for nodeColor, group in groups:
-
         if legend:
-
             name = group.legend.unique()[0]
 
             ax.plot(
@@ -114,7 +106,6 @@ def network_plot_2D(
             ax.legend(fontsize=legend_fontsize)
 
         else:
-
             ax.plot(
                 group.x,
                 group.y,
@@ -148,7 +139,6 @@ def network_plot_3D(
     ylim=None,
     zlim=None,
 ):
-
     # Get node positions
     pos = nx.get_node_attributes(G, "pos")
 
@@ -162,7 +152,6 @@ def network_plot_3D(
             colors[node] = "r"
 
     if legend:
-
         legend = nx.get_node_attributes(G, "legend")
 
     # 3D network plot
@@ -194,9 +183,7 @@ def network_plot_3D(
     groups = df.groupby("nodeColor")
 
     for nodeColor, group in groups:
-
         if legend:
-
             name = group.legend.unique()[0]
 
             plt.plot(
@@ -215,7 +202,6 @@ def network_plot_3D(
             plt.legend(fontsize=legend_fontsize)
 
         else:
-
             plt.plot(
                 group.x,
                 group.y,
@@ -318,7 +304,6 @@ def Voronoi_3D(G, angle):
     dsph = (vol / 4.18) ** (1 / 3)
     tree = KDTree(hull.points)
     with plt.style.context(("ggplot")):
-
         fig = plt.figure(figsize=(18, 15))
         ax = Axes3D(fig)
         ax.set_xlim3d(600, 1500)
