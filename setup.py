@@ -27,7 +27,7 @@ setup(
         "tqdm",
         "pandas",
         "scikit-image",
-        "sklearn",
+        "scikit-learn",
         "matplotlib",
         "seaborn",
     ],

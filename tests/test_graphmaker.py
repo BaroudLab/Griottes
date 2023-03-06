@@ -55,7 +55,7 @@ def test_test_image(test_binary_image_2D):
 
     assert isinstance(test_binary_image_2D, np.ndarray)
     assert test_binary_image_2D.ndim == 2
-    assert test_binary_image_2D.dtype == np.bool
+    assert test_binary_image_2D.dtype == bool
 
 def test_prepare_user_entry(test_image_2D, test_image_3D, test_binary_image_2D):
 

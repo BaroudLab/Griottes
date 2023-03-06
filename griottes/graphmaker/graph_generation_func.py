@@ -11,7 +11,7 @@ from griottes.graphmaker import make_spheroids
 from griottes.analyse import cell_property_extraction
 
 # IMPORTANT CONVENTIONS: Following standard practice,
-# all images have shapes Z, Y, X, C where C in the
+# all images have shapes C, Z, Y, X where C in the
 # fluo channel.
 
 
@@ -28,10 +28,8 @@ def generate_geometric_graph(
 
     """
     Creates a geometric graph.
-
     This function creates a geometric graph from an
     image or a dataframe object.
-
     Parameters
     ----------
     user_entry : pandas.DataFrame or numpy.ndarray
@@ -56,7 +54,6 @@ def generate_geometric_graph(
     mask_channel : int, optional
         The channel containing the cell masks
         The default is None.
-
     Returns
     -------
     nx.Graph
@@ -114,7 +111,8 @@ def generate_geometric_graph(
 
 
 def generate_contact_graph(
-    user_entry,
+    labels_array:np.ndarray,
+    dataframe_with_descriptors:pandas.DataFrame = None,
     mask_channel=None,
     min_area=0,
     analyze_fluo_channels=True,
@@ -126,16 +124,16 @@ def generate_contact_graph(
 
     """
     Creates a contact graph.
-
     This function creates a contact graph from an
     image. The contact graph is a graph where each node
     represents a region and each edge represents a contact
     between two adjascent regions.
-
     Parameters
     ----------
-    user_entry : numpy.ndarray
+    labels_array : numpy.ndarray
         contains the information on the cells.
+    dataframe_with_descriptors: pandas.DataFrame
+        Labels, coordinates and, you know, whatever you want to be included in the graph
     descriptors : list, optional
         contains the cell information included in the
         network nodes.
@@ -154,7 +152,6 @@ def generate_contact_graph(
     mask_channel : int, optional
         The channel containing the cell masks
         The default is None.
-
     Returns
     -------
     nx.Graph
@@ -162,10 +159,11 @@ def generate_contact_graph(
     """
 
     # create a data frame containing the relevant info
-    if isinstance(user_entry, np.ndarray):
+    if isinstance(labels_array, np.ndarray):
+        
 
-        user_entry = create_region_contact_frame(
-            user_entry,
+        neighbors_dataframe = create_region_contact_frame(
+            labels_array,
             image_is_2D=image_is_2D,
             mask_channel=mask_channel,
             min_area=min_area,
@@ -173,50 +171,54 @@ def generate_contact_graph(
             fluo_channel_analysis_method=fluo_channel_analysis_method,
             radius=radius,
         )
+    if dataframe_with_descriptors is None:
+        dataframe_with_descriptors = neighbors_dataframe
 
-    assert isinstance(user_entry, pandas.DataFrame)
-    assert set(["x", "y"]).issubset(user_entry.columns)
+    assert isinstance(dataframe_with_descriptors, pandas.DataFrame)
+    assert isinstance(neighbors_dataframe, pandas.DataFrame)
+    assert set(["x", "y"]).issubset(neighbors_dataframe.columns)
 
     if not image_is_2D:
-        assert set(["z"]).issubset(user_entry.columns)
+        assert set(["z"]).issubset(neighbors_dataframe.columns)
 
     # create the connectivity graph
     G = nx.Graph()
 
-    for ind, label_start in zip(user_entry.label.index, user_entry.label.values):
+    for ind, label_start in zip(neighbors_dataframe.label.index, neighbors_dataframe.label.values):
 
-        neighbors = user_entry.neighbors[ind]
+        neighbors = neighbors_dataframe.neighbors[ind]
 
         if isinstance(neighbors, dict):
 
             for label_stop in neighbors.keys():
 
                 G.add_edge(label_start, label_stop, weight=neighbors[label_stop])
-
     for descriptor in descriptors:
-        desc = {
-            int(i): (user_entry.loc[(user_entry.label == i)][descriptor].values[0])
-            for i in user_entry.label
-        }
-        nx.set_node_attributes(G, desc, descriptor)
+        try:
+            desc = {}
+            for i in dataframe_with_descriptors.label:
+                desc[int(i)] = (dataframe_with_descriptors.loc[(dataframe_with_descriptors.label == int(i))][descriptor].values[0])
+            nx.set_node_attributes(G, desc, descriptor)
+        except KeyError as e:
+	        print(f"Error descriptor :{descriptor},  label: {int(i)}, data: {dataframe_with_descriptors.loc[(dataframe_with_descriptors.label == int(i))].to_dict()}, {e}")
 
     # for the plotting function, pos = (z,y,x).
     if image_is_2D:
         pos = {
             int(i): (
-                user_entry.loc[(user_entry.label == i)]["y"].values[0],
-                user_entry.loc[(user_entry.label == i)]["x"].values[0],
+                neighbors_dataframe.loc[(neighbors_dataframe.label == i)]["y"].values[0],
+                neighbors_dataframe.loc[(neighbors_dataframe.label == i)]["x"].values[0],
             )
-            for i in user_entry.label
+            for i in neighbors_dataframe.label
         }
     else:
         pos = {
             int(i): (
-                user_entry.loc[(user_entry.label == i)]["z"].values[0],
-                user_entry.loc[(user_entry.label == i)]["y"].values[0],
-                user_entry.loc[(user_entry.label == i)]["x"].values[0],
+                neighbors_dataframe.loc[(neighbors_dataframe.label == i)]["z"].values[0],
+                neighbors_dataframe.loc[(neighbors_dataframe.label == i)]["y"].values[0],
+                neighbors_dataframe.loc[(neighbors_dataframe.label == i)]["x"].values[0],
             )
-            for i in user_entry.label
+            for i in neighbors_dataframe.label
         }
 
     nx.set_node_attributes(G, pos, "pos")
@@ -238,10 +240,8 @@ def generate_delaunay_graph(
 
     """
     Creates a Delaunay graph.
-
     This function creates a Delaunay graph from an
     image or a dataframe object.
-
     Parameters
     ----------
     user_entry : pandas.DataFrame or numpy.ndarray
@@ -272,7 +272,6 @@ def generate_delaunay_graph(
     mask_channel : int, optional
         The channel containing the cell masks
         The default is None.
-
     Returns
     -------
     nx.Graph
@@ -420,7 +419,7 @@ def prepare_user_entry(
 
         # check if the user_entry is a binary array transform it to a 
         # labeled array. This allows graph generation from binary images.
-        if user_entry.dtype == np.bool:
+        if user_entry.dtype == bool:
             user_entry = label(user_entry.astype(int))
 
         user_entry = cell_property_extraction.get_cell_properties(
@@ -453,7 +452,6 @@ def trim_graph_voronoi(G, distance, image_is_2D):
     """
     Remove slinks above the distance length. Serves to
     remove unrealistic edges from the graph.
-
     Parameters
     ----------
     G : nx.Graph
@@ -462,12 +460,10 @@ def trim_graph_voronoi(G, distance, image_is_2D):
         The maximum distance between two nodes.
     image_is_2D : bool
         If True, the image is 2D.
-
     Returns
     -------
     nx.Graph        
         The graph representation of the input.
-
     """
 
     pos = nx.get_node_attributes(G, "pos")
@@ -573,7 +569,6 @@ def get_region_contacts_2D(mask_image):
     """
     From the masked image create a dataframe containing the information
     on all the links between region.
-
     """
 
     assert isinstance(mask_image, np.ndarray)
@@ -605,7 +600,6 @@ def get_region_contacts_3D(mask_image):
     """
     From the masked image create a dataframe containing the information
     on all the links between region.
-
     """
 
     assert isinstance(mask_image, np.ndarray)
@@ -675,3 +669,4 @@ def create_region_contact_frame(
     )
 
     return user_entry
+
