@@ -44,76 +44,76 @@ def get_nuclei_properties(image, mask_channel):
 	return properties
 
 def get_shape_properties(properties, image, mask_channel, min_area, ndim):
-"""
-Calculate shape properties of the nuclei.
+	"""
+	Calculate shape properties of the nuclei.
 
-Parameters
-----------
-properties : pandas.DataFrame
-	Dataframe containing centroid, area, and label of the nuclei.
-image : numpy.ndarray
-	Image with nuclei masks.
-mask_channel : int
-	Channel of the mask.
-min_area : int
-	Minimum area of the nuclei to include in analysis.
-ndim : int
-	Number of dimensions in the image (2 or 3).
+	Parameters
+	----------
+	properties : pandas.DataFrame
+		Dataframe containing centroid, area, and label of the nuclei.
+	image : numpy.ndarray
+		Image with nuclei masks.
+	mask_channel : int
+		Channel of the mask.
+	min_area : int
+		Minimum area of the nuclei to include in analysis.
+	ndim : int
+		Number of dimensions in the image (2 or 3).
 
-Returns
--------
-pandas.DataFrame
-	Dataframe with additional columns for shape properties.
+	Returns
+	-------
+	pandas.DataFrame
+		Dataframe with additional columns for shape properties.
 
-"""
-# Loop through each nucleus
-for ind in tqdm(properties.index, leave=False):
-	# Check if nucleus meets minimum area requirement and has 3 dimensions
-	if (properties.loc[ind, "area"] > min_area) & (ndim == 3):
-		# Get mask for current nucleus
-		label = properties.loc[ind, "label"]
-		loc_mask = (image[mask_channel] == label) * 1
-		nonzero = np.nonzero(loc_mask)
+	"""
+	# Loop through each nucleus
+	for ind in tqdm(properties.index, leave=False):
+		# Check if nucleus meets minimum area requirement and has 3 dimensions
+		if (properties.loc[ind, "area"] > min_area) & (ndim == 3):
+			# Get mask for current nucleus
+			label = properties.loc[ind, "label"]
+			loc_mask = (image[mask_channel] == label) * 1
+			nonzero = np.nonzero(loc_mask)
 
-		# Fit PCA to get orientation and eccentricity
-		pca = PCA(n_components=3)
-		Y = np.c_[nonzero[0], nonzero[1], nonzero[2]]
-		pca.fit(Y)
-		vec = pca.components_[0]
-		var = pca.explained_variance_
+			# Fit PCA to get orientation and eccentricity
+			pca = PCA(n_components=3)
+			Y = np.c_[nonzero[0], nonzero[1], nonzero[2]]
+			pca.fit(Y)
+			vec = pca.components_[0]
+			var = pca.explained_variance_
 
-		# Store shape properties in dataframe
-		properties.loc[ind, "vec_0"] = vec[0]
-		properties.loc[ind, "vec_1"] = vec[1]
-		properties.loc[ind, "vec_2"] = vec[2]
-		properties.loc[ind, "theta"] = np.arctan2(vec[1], vec[2])
-		properties.loc[ind, "psi"] = np.arctan2(
-			vec[0], np.sqrt(vec[1] ** 2 + vec[2] ** 2)
-		)
-		properties.loc[ind, "eccentricity"] = np.abs(var[0]) / np.sqrt(
-			var[1] * var[2]
-		)
+			# Store shape properties in dataframe
+			properties.loc[ind, "vec_0"] = vec[0]
+			properties.loc[ind, "vec_1"] = vec[1]
+			properties.loc[ind, "vec_2"] = vec[2]
+			properties.loc[ind, "theta"] = np.arctan2(vec[1], vec[2])
+			properties.loc[ind, "psi"] = np.arctan2(
+				vec[0], np.sqrt(vec[1] ** 2 + vec[2] ** 2)
+			)
+			properties.loc[ind, "eccentricity"] = np.abs(var[0]) / np.sqrt(
+				var[1] * var[2]
+			)
 
-	# Check if nucleus meets minimum area requirement and has 2 dimensions
-	if (properties.loc[ind, "area"] > min_area) & (ndim == 2):
-		# Get mask for current nucleus
-		loc_mask = (image[mask_channel] == ind) * 1
-		nonzero = np.nonzero(loc_mask)
+		# Check if nucleus meets minimum area requirement and has 2 dimensions
+		if (properties.loc[ind, "area"] > min_area) & (ndim == 2):
+			# Get mask for current nucleus
+			loc_mask = (image[mask_channel] == ind) * 1
+			nonzero = np.nonzero(loc_mask)
 
-		# Fit PCA to get orientation and eccentricity
-		pca = PCA(n_components=2)
-		Y = np.c_[nonzero[0], nonzero[1]]
-		pca.fit(Y)
-		vec = pca.components_[0]
-		var = pca.explained_variance_
+			# Fit PCA to get orientation and eccentricity
+			pca = PCA(n_components=2)
+			Y = np.c_[nonzero[0], nonzero[1]]
+			pca.fit(Y)
+			vec = pca.components_[0]
+			var = pca.explained_variance_
 
-		# Store shape properties in dataframe
-		properties.loc[ind, "vec_0"] = vec[0]
-		properties.loc[ind, "vec_1"] = vec[1]
-		properties.loc[ind, "theta"] = np.arctan2(vec[0], vec[1])
-		properties.loc[ind, "eccentricity"] = np.abs(var[0]) / np.sqrt(var[1])
+			# Store shape properties in dataframe
+			properties.loc[ind, "vec_0"] = vec[0]
+			properties.loc[ind, "vec_1"] = vec[1]
+			properties.loc[ind, "theta"] = np.arctan2(vec[0], vec[1])
+			properties.loc[ind, "eccentricity"] = np.abs(var[0]) / np.sqrt(var[1])
 
-return properties
+	return properties
 
 def get_fluo_properties(image, fluo_channel, mask_channel=0):
 	"""
