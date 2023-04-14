@@ -117,6 +117,7 @@ def generate_contact_graph(
     fluo_channel_analysis_method="basic",
     descriptors=[],
     radius=30,
+    **kwargs
 ):
     """
     Creates a contact graph.
