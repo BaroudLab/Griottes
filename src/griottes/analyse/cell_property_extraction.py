@@ -219,7 +219,7 @@ def sphere_mean_intensity(intensity_image, position, radius, percentile=50):
 	return np.mean(intensities), np.percentile(intensities, percentile)
 
 def calculate_sphere_fluo_properties(
-	properties: pd.DataFrame,
+	properties: pandas.DataFrame,
 	image: np.ndarray,
 	fluo_channel: int,
 	radius: int,
