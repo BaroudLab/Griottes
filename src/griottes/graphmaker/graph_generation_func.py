@@ -156,7 +156,8 @@ def generate_contact_graph(
     """
 
     # create a data frame containing the relevant info
-    if isinstance(labels_array, np.ndarray):
+    
+    try:
         neighbors_dataframe = create_region_contact_frame(
             labels_array,
             image_is_2D=image_is_2D,
@@ -166,6 +167,11 @@ def generate_contact_graph(
             fluo_channel_analysis_method=fluo_channel_analysis_method,
             radius=radius,
         )
+    except Exception as e:
+        print(f"getting neighbors for {labels_array} failed {e}")
+        raise(e)
+
+    
     if dataframe_with_descriptors is None:
         dataframe_with_descriptors = neighbors_dataframe
 
