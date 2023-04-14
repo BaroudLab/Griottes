@@ -225,7 +225,7 @@ def calculate_sphere_fluo_properties(
 	radius: int,
 	mask_channel: int,
 	percentile: int
-) -> pd.DataFrame:
+) -> pandas.DataFrame:
 	"""
 	Calculate mean and percentile fluorescence intensity within a sphere around each nucleus.
 
